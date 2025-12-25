@@ -1,4 +1,4 @@
-# HYDROX MOVERS AND PACKERS
+# MOVERS AND PACKERS
 
 ## 📌 Project Status: **In Development**
 
@@ -65,3 +65,4 @@ This README will be updated as the project progresses. Stay tuned for more featu
 ---
 
 *Last Updated: December 26, 2025*
+
