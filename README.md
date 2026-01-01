@@ -21,16 +21,15 @@
     - **Auth Sync**: Custom event handling for immediate Navbar updates.
 - [x] **Architecture**: Consolidated CSS for maximum performance and maintainability.
 
-### � Pending / Next Phase
+###  Pending / Next Phase
 - [ ] **Full Payment Gateway**: Integration with a real payment provider (e.g., Stripe/Razorpay).
 - [ ] **Provider Verification**: Admin workflow to approve/reject provider licenses.
-- [ ] **Live Notifications**: WebSocket integration for real-time alerts.
-- [ ] **Mobile App**: Extension to iOS and Android versions.
+- [ ] **Notifications**: WebSocket integration for real-time alerts.
 
 ### 📅 Upcoming
 - [ ] Admin & Provider Dashboards (Detailed Analytics).
 - [ ] Multi-language support (English/Hindi).
-- [ ] Advanced Review Management (Media uploads).
+- [ ] Live Vehicle & Consignment Tracking.
 
 ---
 
