@@ -14,7 +14,7 @@
 - [x] **Authentication System**: Fully functional Signup and Login with JWT security.
 - [x] **Service Management**: Complete flow for creating and tracking service requests.
 - [x] **Backend Logic**: Implemented functional logic for Reviews, Payments, and Notifications.
-- [x] **Frontend UI/UX**: 
+- [x] **Frontend**: 
     - **Home Page**: Premium landing page with cinematic visuals.
     - **Booking Page**: Interactive form for service requests.
     - **Dashboard**: Real-time status tracking for users.
