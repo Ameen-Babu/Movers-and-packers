@@ -21,7 +21,7 @@
     - **Auth Sync**: Custom event handling for immediate Navbar updates.
 - [x] **Architecture**: Consolidated CSS for maximum performance and maintainability.
 
-### https://emoji.discadia.com/emojis/d8500689-1a01-4bfb-a02d-f29a4df7c81b.gif Pending / Next Phase
+### ⌛ Pending / Next Phase
 - [ ] **Full Payment Gateway**: Integration with a real payment provider (e.g., Stripe/Razorpay).
 - [ ] **Provider Verification**: Admin workflow to approve/reject provider licenses.
 - [ ] **Notifications**: WebSocket integration for real-time alerts.
