@@ -2,9 +2,8 @@ const Payment = require('../models/Payment');
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
 
-// @desc    Process a payment
-// @route   POST /api/payments
-// @access  Private (Client)
+
+
 const processPayment = async (req, res) => {
     try {
         const { requestId, amount, method, transactionId } = req.body;
@@ -39,9 +38,8 @@ const processPayment = async (req, res) => {
     }
 };
 
-// @desc    Get payment details
-// @route   GET /api/payments/:id
-// @access  Private
+
+
 const getPaymentDetails = async (req, res) => {
     try {
         const payment = await Payment.findById(req.params.id)

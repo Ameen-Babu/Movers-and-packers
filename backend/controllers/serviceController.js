@@ -1,9 +1,8 @@
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
 
-// @desc    Create new service request
-// @route   POST /api/services
-// @access  Private (Client)
+
+
 const createServiceRequest = async (req, res) => {
     try {
         const { pickupLocation, dropoffLocation, movingDate, serviceType, estimatedPrice } = req.body;
@@ -33,9 +32,6 @@ const createServiceRequest = async (req, res) => {
     }
 };
 
-// @desc    Get user's service requests
-// @route   GET /api/services
-// @access  Private
 const getServiceRequests = async (req, res) => {
     try {
         let requests;
@@ -55,9 +51,6 @@ const getServiceRequests = async (req, res) => {
     }
 };
 
-// @desc    Get single service request
-// @route   GET /api/services/:id
-// @access  Private
 const getServiceRequestById = async (req, res) => {
     try {
         const request = await ServiceRequest.findById(req.params.id)

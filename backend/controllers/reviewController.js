@@ -2,9 +2,8 @@ const Review = require('../models/Review');
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
 
-// @desc    Create a review
-// @route   POST /api/reviews
-// @access  Private (Client)
+
+
 const createReview = async (req, res) => {
     try {
         const { requestId, rating, comment } = req.body;
@@ -41,9 +40,8 @@ const createReview = async (req, res) => {
     }
 };
 
-// @desc    Get all reviews for a provider
-// @route   GET /api/reviews/provider/:providerId
-// @access  Public
+
+
 const getProviderReviews = async (req, res) => {
     try {
         const reviews = await Review.find({ providerId: req.params.providerId })

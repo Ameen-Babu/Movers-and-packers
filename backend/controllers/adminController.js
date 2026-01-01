@@ -3,9 +3,8 @@ const Client = require('../models/Client');
 const Provider = require('../models/Provider');
 const ServiceRequest = require('../models/ServiceRequest');
 
-// @desc    Get all users (Admin)
-// @route   GET /api/admin/users
-// @access  Private (Admin)
+
+
 const getAllUsers = async (req, res) => {
     try {
         const users = await User.find({}).select('-passwordHash');
@@ -15,9 +14,8 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// @desc    Get system statistics (Admin)
-// @route   GET /api/admin/stats
-// @access  Private (Admin)
+
+
 const getStats = async (req, res) => {
     try {
         const userCount = await User.countDocuments();
