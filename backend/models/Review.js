@@ -15,7 +15,7 @@ const reviewSchema = new mongoose.Schema({
     providerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Provider',
-        required: true,
+        required: false,
     },
     rating: {
         type: Number,
