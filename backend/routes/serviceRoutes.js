@@ -4,7 +4,9 @@ const { protect } = require('../middleware/authMiddleware');
 const {
     createServiceRequest,
     getServiceRequests,
-    getServiceRequestById
+    getServiceRequestById,
+    updateServiceStatus,
+    deleteServiceRequest
 } = require('../controllers/serviceController');
 
 router.route('/')
@@ -12,6 +14,8 @@ router.route('/')
     .post(protect, createServiceRequest);
 
 router.route('/:id')
-    .get(protect, getServiceRequestById);
+    .get(protect, getServiceRequestById)
+    .patch(protect, updateServiceStatus)
+    .delete(protect, deleteServiceRequest);
 
 module.exports = router;

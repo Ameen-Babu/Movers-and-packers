@@ -1,76 +1,79 @@
-# MOVERS AND PACKERS
+# 🚚 HYDROX MOVERS & PACKERS
 
-## 📌 Project Status: **Week 3 Completed ✅**
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Advanced_Phase-success?style=for-the-badge&logo=github" alt="Status" />
+  <img src="https://img.shields.io/badge/Stack-MERN-blue?style=for-the-badge&logo=mongodb" alt="Stack" />
+  <img src="https://img.shields.io/badge/Design-Premium-gold?style=for-the-badge" alt="Design" />
+</p>
 
-> 🚀 This project has successfully reached the Week 3 milestone. All core backend modules and essential frontend pages are fully implemented and integrated.
-
----
-
-## 📋 Development Progress
-
-### ✅ Completed (Week 3)
-- [x] **Project Foundation**: Professional MERN stack setup with separate directories.
-- [x] **Database & Models**: Multi-role support (Client, Provider, Admin) with MongoDB.
-- [x] **Authentication System**: Fully functional Signup and Login with JWT security.
-- [x] **Service Management**: Complete flow for creating and tracking service requests.
-- [x] **Backend Logic**: Implemented functional logic for Reviews, Payments, and Notifications.
-- [x] **Frontend**: 
-    - **Home Page**: Premium landing page with cinematic visuals.
-    - **Booking Page**: Interactive form for service requests.
-    - **Dashboard**: Real-time status tracking for users.
-    - **Auth Sync**: Custom event handling for immediate Navbar updates.
-- [x] **Architecture**: Consolidated CSS for maximum performance and maintainability.
-
-### ⌛ Pending / Next Phase
-- [ ] **Full Payment Gateway**: Integration with a real payment provider (e.g., Stripe/Razorpay).
-- [ ] **Provider Verification**: Admin workflow to approve/reject provider licenses.
-- [ ] **Notifications**: WebSocket integration for real-time alerts.
-
-### 📅 Upcoming
-- [ ] Admin & Provider Dashboards (Detailed Analytics).
-- [ ] Multi-language support (English/Hindi).
-- [ ] Live Vehicle & Consignment Tracking.
+## � Project Overview
+Hydrox Movers is a high-fidelity logistics platform designed to provide a seamless moving experience. From cinematic landing pages to advanced role-based management, it bridges the gap between customers and service providers with professional efficiency.
 
 ---
 
-## 🛠️ Tech Stack
+## 📋 Development Progress: **Advanced Phase** 🚀
 
-### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database:** MongoDB Atlas (Cloud)
-- **Authentication:** JWT (JSON Web Tokens)
-- **Security**: Custom Auth Middleware & Role-Based Access Control
+### ✅ Core Features (Completed)
+- [x] **Multi-Role Ecosystem**: Fully integrated **Client**, **Provider**, and **Admin** architectures.
+- [x] **Secure Authentication**: JWT-secured Signup/Login with persistent **Phone Number** handling.
+- [x] **Dynamic Service Booking**: Unified booking flow with real-time state management.
+- [x] **Role-Based Dashboards**: 
+    - **Customer View**: Track orders, view history, and **Self-Service Cancellation**.
+    - **Admin Command Center**: Complete request management (View Details, Update Status, Delete).
+- [x] **Profile Intelligence**: Editable user profiles for both personal and professional (Provider) data.
+- [x] **Cinematic UI/UX**: Centralized CSS with premium animations, responsive layouts, and modern typography.
+- [x] **Real-time Sync**: Custom event-driven Navbar updates for seamless user transitions.
 
-### Frontend
-- **Framework:** React.js (Vite)
-- **Icons**: Lucide React
-- **Styling:** Modern Vanilla CSS (Centralized)
-- **Routing**: React Router DOM
+### ⌛ In Development / Roadmap
+- [ ] **Financial Engine**: Stripe/Razorpay integration for automated billing.
+- [ ] **Trust System**: Provider license verification workflow.
+- [ ] **Live Flux**: WebSocket-powered notifications and consignment tracking.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Technical Architecture
 
-### 1. Backend Setup
+### 🛡️ Backend (Node.js & Express)
+- **Database**: MongoDB Atlas with optimized Mongoose schemas.
+- **Security**: Granular Role-Based Access Control (RBAC) & Protected Routes.
+- **Logic**: Intelligent controllers for service allocation and user management.
+
+### 🎨 Frontend (React + Vite)
+- **State**: Context API for global auth and session persistence.
+- **Icons**: Lucide React for consistent, high-end visual language.
+- **Styling**: **Pro-Level Vanilla CSS** – zero bloat, maximum performance, fluid responsiveness.
+- **Navigation**: React Router DOM with Private/Shared routing logic.
+
+---
+
+## 🚀 Deployment & Installation
+
+### 1. Prerequisites
+- Node.js (v16+)
+- MongoDB Atlas Connection String
+
+### 2. Quick Start
 ```bash
+# Clone the repository
+git clone https://github.com/Ameen-Babu/Movers-and-packers.git
+
+# Setup Backend
 cd backend
 npm install
 npm run dev
-```
 
-### 2. Frontend Setup
-```bash
-cd frontend
+# Setup Frontend
+cd ../frontend
 npm install
 npm run dev
 ```
 
 ---
 
-## 📝 Milestone Summary
-This project now features a complete end-to-end flow from user registration to booking and tracking. All backend components are ready for API testing, and the frontend provides a high-fidelity user experience.
+## 📝 Milestone Summary: Jan 9, 2026
+The platform has evolved from a core MVP into a robust management system. The current iteration focuses on **User Agency** (Profile updates, cancellations) and **Admin Oversight** (Management modals), ensuring a production-ready logic flow.
 
 ---
-
-*Last Updated: January 1, 2026*
+<p align="center">
+  <i>Built with ❤️ for a Seamless Moving Experience.</i>
+</p>

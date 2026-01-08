@@ -1,3 +1,4 @@
+// landing page
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Truck, Package, Clock, Star, ArrowRight } from 'lucide-react';
@@ -6,7 +7,6 @@ const Home = () => {
     const navigate = useNavigate();
     return (
         <div className="home-page">
-            {/* Hero Section */}
             <section className="hero">
                 <div className="container hero-content">
                     <span className="hero-badge">MANAGE FROM ONE CENTER!</span>
@@ -19,7 +19,6 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Services Section */}
             <section className="services section-padding">
                 <div className="container">
                     <div className="section-header text-center">
@@ -64,7 +63,6 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Features Section */}
             <section className="features section-padding bg-dark">
                 <div className="container">
                     <div className="features-grid">
@@ -87,7 +85,6 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Feedback Section (Redesigned) */}
             <section className="feedback section-padding">
                 <div className="container">
                     <div className="section-header text-center">
@@ -162,7 +159,6 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
             <section className="cta section-padding">
                 <div className="container">
                     <div className="cta-content glass-card">

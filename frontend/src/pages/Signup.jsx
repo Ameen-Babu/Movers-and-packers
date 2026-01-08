@@ -95,6 +95,7 @@ const Signup = () => {
                                     <select name="role" value={formData.role} onChange={handleChange} className="auth-select">
                                         <option value="client">Client</option>
                                         <option value="provider">Provider</option>
+                                        <option value="admin">Admin</option>
                                     </select>
                                 </div>
                             </div>
@@ -134,7 +135,7 @@ const Signup = () => {
                                         </div>
                                     </div>
                                 </>
-                            ) : (
+                            ) : formData.role === 'provider' ? (
                                 <>
                                     <div className="form-group">
                                         <label>COMPANY NAME</label>
@@ -149,6 +150,13 @@ const Signup = () => {
                                         </div>
                                     </div>
                                 </>
+                            ) : (
+                                <div className="form-group full-width">
+                                    <label>REGISTER ID</label>
+                                    <div className="input-wrapper">
+                                        <input name="registerId" type="text" placeholder="ADM-12345" required onChange={handleChange} />
+                                    </div>
+                                </div>
                             )}
                         </div>
 

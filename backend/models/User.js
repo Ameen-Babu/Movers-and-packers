@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Base User Schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -25,7 +24,7 @@ const userSchema = new mongoose.Schema({
         required: true,
     }
 }, {
-    timestamps: true, // Adds createdAt
+    timestamps: true,
 });
 
 const User = mongoose.model('User', userSchema);

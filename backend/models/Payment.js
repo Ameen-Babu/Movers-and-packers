@@ -15,7 +15,6 @@ const paymentSchema = new mongoose.Schema({
     providerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Provider',
-        required: true,
     },
     amount: {
         type: Number,
@@ -23,7 +22,7 @@ const paymentSchema = new mongoose.Schema({
     },
     method: {
         type: String,
-        enum: ['card', 'cash', 'upi'],
+        enum: ['card', 'cash', 'upi', 'razorpay'],
         required: true,
     },
     paymentStatus: {

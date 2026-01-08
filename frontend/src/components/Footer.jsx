@@ -45,7 +45,7 @@ const Footer = () => {
             </div>
             <div className="footer-bottom">
                 <div className="container">
-                    <p>&copy; 2024 All Rights Reserved. Design by Ameen A.G</p>
+                    <p>&copy; 2026 All Rights Reserved. Design by Ameen A.G</p>
                 </div>
             </div>
         </footer>

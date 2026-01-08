@@ -1,9 +1,11 @@
+// main nav
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, ChevronDown, Settings } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -20,7 +22,6 @@ const Navbar = () => {
     checkUser();
     window.addEventListener('storage', checkUser);
 
-    // Custom event listener for same-window updates
     window.addEventListener('userLogin', checkUser);
 
     return () => {
@@ -34,6 +35,7 @@ const Navbar = () => {
     setUser(null);
     navigate('/login');
     setIsOpen(false);
+    setIsProfileOpen(false);
   };
 
   return (
@@ -48,17 +50,117 @@ const Navbar = () => {
           <Link to="/about" onClick={() => setIsOpen(false)}>About</Link>
           <Link to="/booking" onClick={() => setIsOpen(false)}>Booking</Link>
           <Link to="/contact" onClick={() => setIsOpen(false)}>Contact</Link>
-          {user && <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>}
+
 
           <div className="nav-auth">
             {user ? (
               <>
-                <span className="user-badge">
-                  <User size={18} /> {user.name}
-                </span>
-                <button className="btn-outline logout-btn" onClick={handleLogout}>
-                  <LogOut size={18} /> Logout
-                </button>
+                <div className="profile-menu-container" style={{ position: 'relative' }}>
+                  <button
+                    className="profile-trigger"
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--secondary)',
+                      fontWeight: '600',
+                      fontSize: '15px'
+                    }}
+                  >
+                    <div style={{
+                      width: '35px',
+                      height: '35px',
+                      borderRadius: '50%',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <User size={20} />
+                    </div>
+                    <span>{user.name}</span>
+                    <ChevronDown size={16} />
+                  </button>
+
+                  {isProfileOpen && (
+                    <div className="profile-dropdown glass-card" style={{
+                      position: 'absolute',
+                      top: '120%',
+                      right: '0',
+                      width: '200px',
+                      padding: '10px',
+                      borderRadius: '15px',
+                      zIndex: '1000',
+                      background: 'white',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '5px',
+                      boxShadow: 'var(--shadow-lg)'
+                    }}>
+                      <Link
+                        to="/profile"
+                        className="profile-menu-item"
+                        onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
+                        style={{
+                          padding: '10px 15px',
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          fontSize: '14px',
+                          color: 'var(--secondary)',
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        <User size={16} /> Profile
+                      </Link>
+                      <Link
+                        to={user.role?.trim().toLowerCase() === 'admin' ? "/dashboard" : "/orders"}
+                        className="profile-menu-item"
+                        onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
+                        style={{
+                          padding: '10px 15px',
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          fontSize: '14px',
+                          color: 'var(--secondary)',
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        <Settings size={16} />
+                        {user.role?.trim().toLowerCase() === 'admin' ? 'Dashboard' : 'Orders'}
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="profile-menu-item"
+                        style={{
+                          padding: '10px 15px',
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          fontSize: '14px',
+                          color: '#ff4d4d',
+                          background: 'none',
+                          border: 'none',
+                          width: '100%',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        <LogOut size={16} /> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
