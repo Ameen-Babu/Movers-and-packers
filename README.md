@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Design-Premium-gold?style=for-the-badge" alt="Design" />
 </p>
 
-## � Project Overview
+##  Project Overview
 Hydrox Movers is a high-fidelity logistics platform designed to provide a seamless moving experience. From cinematic landing pages to advanced role-based management, it bridges the gap between customers and service providers with professional efficiency.
 
 ---
