@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Design-Premium-gold?style=for-the-badge" alt="Design" />
 </p>
 
-## � Project Overview
+##  Project Overview
 Hydrox Movers is a high-fidelity logistics platform designed to provide a seamless moving experience. From cinematic landing pages to advanced role-based management, it bridges the gap between customers and service providers with professional efficiency.
 
 ---
@@ -23,11 +23,10 @@ Hydrox Movers is a high-fidelity logistics platform designed to provide a seamle
 - [x] **Profile Intelligence**: Editable user profiles for both personal and professional (Provider) data.
 - [x] **Cinematic UI/UX**: Centralized CSS with premium animations, responsive layouts, and modern typography.
 - [x] **Real-time Sync**: Custom event-driven Navbar updates for seamless user transitions.
+- [x] **Financial Engine**: Stripe/Razorpay integration for automated billing.
 
 ### ⌛ In Development / Roadmap
-- [ ] **Financial Engine**: Stripe/Razorpay integration for automated billing.
 - [ ] **Trust System**: Provider license verification workflow.
-- [ ] **Live Flux**: WebSocket-powered notifications and consignment tracking.
 
 ---
 
