@@ -160,7 +160,7 @@ const Dashboard = () => {
                         )}
                         <p>{userRole?.toLowerCase() === 'admin' ? 'Manage platform activity and users' : 'Track your active moves and past requests'}</p>
                     </div>
-                    <span className="user-role-badge" style={{ background: 'var(--primary)', color: 'white', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    <span className="user-role-badge" style={{ background: 'var(--primary)', color: 'var(--white)', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
                         {userRole || 'User'} Mode
                     </span>
                 </div>
@@ -243,7 +243,7 @@ const Dashboard = () => {
                     <div className="users-list glass-card p-30">
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ borderBottom: '1px solid #444', textAlign: 'left' }}>
+                                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
                                     <th style={{ padding: '10px' }}>Name</th>
                                     <th style={{ padding: '10px' }}>Email</th>
                                     <th style={{ padding: '10px' }}>Role</th>
@@ -255,7 +255,7 @@ const Dashboard = () => {
                                     <tr key={u._id}>
                                         <td>{u.name}</td>
                                         <td>{u.email}</td>
-                                        <td><span className="status-badge" style={{ background: u.role === 'admin' ? 'var(--primary)' : '#eee', color: u.role === 'admin' ? 'white' : '#666', borderRadius: '50px' }}>{u.role}</span></td>
+                                        <td><span className="status-badge" style={{ background: u.role === 'admin' ? 'var(--primary)' : 'var(--bg-light)', color: u.role === 'admin' ? 'var(--white)' : 'var(--text-muted)', borderRadius: '50px' }}>{u.role}</span></td>
                                         <td>
                                             <button
                                                 className="btn-outline"
@@ -291,7 +291,7 @@ const Dashboard = () => {
                 isModalOpen && selectedRequest && (
                     <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
                         <div className="modal-content" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => setIsModalOpen(false)} className="modal-close" style={{ position: 'absolute', top: '25px', right: '25px', background: 'none', color: '#666', fontSize: '28px' }}>&times;</button>
+                            <button onClick={() => setIsModalOpen(false)} className="modal-close" style={{ position: 'absolute', top: '25px', right: '25px', background: 'none', color: 'var(--text-muted)', fontSize: '28px' }}>&times;</button>
 
                             <h3 style={{ color: 'var(--primary)', marginBottom: '30px', fontSize: '1.8rem' }}>Request Details</h3>
 
@@ -359,7 +359,7 @@ const Dashboard = () => {
                             </div>
 
                             {userRole === 'admin' && (
-                                <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '20px', textAlign: 'right' }}>
+                                <div style={{ marginTop: '40px', borderTop: '1px solid var(--border-color)', paddingTop: '20px', textAlign: 'right' }}>
                                     <button
                                         className="btn-outline"
                                         style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '10px 30px' }}

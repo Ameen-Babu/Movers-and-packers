@@ -7,14 +7,36 @@
   --secondary: #1a1a1a;
   --text-main: #333333;
   --text-muted: #666666;
-  --white: #ffffff;
+  --bg-body: #ffffff;
+  --bg-card: #ffffff;
   --bg-light: #f9f9f9;
+  --nav-bg: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(255, 255, 255, 0.2);
+  --border-color: #eeeeee;
+  --white: #ffffff;
+  --black: #000000;
+  --footer-bg: #1a1a1a;
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
   --transition: all 0.3s ease;
+}
+
+[data-theme='dark'] {
+  --text-main: #f5f5f5;
+  --text-muted: #a0a0a0;
+  --bg-body: #0f0f0f;
+  --bg-card: #1a1a1a;
+  --bg-light: #252525;
+  --nav-bg: #151515;
+  --glass-bg: rgba(20, 20, 20, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --border-color: #333333;
+  --secondary: #f5f5f5;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -26,9 +48,10 @@
 body {
   font-family: 'Inter', sans-serif;
   color: var(--text-main);
-  background-color: var(--white);
+  background-color: var(--bg-body);
   line-height: 1.6;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1,
@@ -128,11 +151,12 @@ button {
   border: 1px solid var(--glass-border);
   border-radius: 30px;
   box-shadow: var(--shadow-md);
+  transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
 }
 
 .white-card {
-  background: var(--white);
-  border: 1px solid #eee;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
@@ -150,11 +174,12 @@ button {
   height: 80px;
   display: flex;
   align-items: center;
-  background: var(--white);
+  background: var(--nav-bg);
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: var(--transition);
 }
 
 .nav-content {
@@ -221,7 +246,7 @@ button {
 }
 
 .footer {
-  background: var(--secondary);
+  background: var(--footer-bg);
   color: var(--white);
   padding-top: 80px;
 }
@@ -352,7 +377,7 @@ button {
 .booking-footer {
   margin-top: 40px;
   padding-top: 30px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -432,7 +457,7 @@ button {
 .info-item p {
   font-size: 15px;
   font-weight: 500;
-  color: var(--dark);
+  color: var(--text-main);
 }
 
 .info-split {
@@ -609,9 +634,10 @@ button {
 .review-text {
   font-size: 17px;
   line-height: 1.8;
-  color: #444;
+  color: var(--text-main);
   margin-bottom: 30px;
   font-style: italic;
+  opacity: 0.9;
 }
 
 .reviewer {
@@ -660,7 +686,7 @@ button {
 .cta-content p {
   font-size: 20px;
   margin-bottom: 45px;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .auth-page,
@@ -670,7 +696,7 @@ button {
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  background: var(--bg-light);
+  background: var(--bg-body);
 }
 
 .auth-card {
@@ -730,11 +756,11 @@ button {
   width: 100%;
   padding: 15px 25px;
   border-radius: 50px;
-  border: 1px solid #ddd;
-  background: var(--white);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
   font-size: 14px;
   outline: none;
-  color: var(--secondary);
+  color: var(--text-main);
   transition: var(--transition);
 }
 
@@ -917,7 +943,7 @@ input[type="date"] {
   color: var(--text-main);
   font-size: 0.95rem;
   padding: 15px;
-  border-bottom: 1px solid var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* Modal Styling */
@@ -937,7 +963,7 @@ input[type="date"] {
 }
 
 .modal-content {
-  background: var(--white);
+  background: var(--bg-card);
   width: 100%;
   max-width: 650px;
   max-height: 90vh;
@@ -1067,7 +1093,7 @@ input[type="date"] {
 /* About Page Specific Styles */
 .about-content {
   padding: 60px;
-  marginTop: 40px;
+  margin-top: 40px;
 }
 
 .about-header h2 {
@@ -1138,7 +1164,7 @@ input[type="date"] {
   grid-template-columns: repeat(4, 1fr);
   gap: 30px;
   padding-top: 60px;
-  border-top: 1px solid var(--bg-light);
+  border-top: 1px solid var(--border-color);
 }
 
 .about-features .icon-box {
@@ -1329,7 +1355,9 @@ input[type="date"] {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
   font-size: 1rem;
   transition: var(--transition);
 }

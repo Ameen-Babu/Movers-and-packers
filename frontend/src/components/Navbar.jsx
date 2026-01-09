@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut, User, ChevronDown, Settings } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +54,7 @@ const Navbar = () => {
 
 
           <div className="nav-auth">
+            <ThemeToggle />
             {user ? (
               <>
                 <div className="profile-menu-container" style={{ position: 'relative' }}>
@@ -96,7 +98,7 @@ const Navbar = () => {
                       padding: '10px',
                       borderRadius: '15px',
                       zIndex: '1000',
-                      background: 'white',
+                      background: 'var(--bg-card)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '5px',

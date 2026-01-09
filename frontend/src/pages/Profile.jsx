@@ -88,40 +88,40 @@ const Profile = () => {
                         <User size={24} color="var(--primary)" /> My Profile
                     </h2>
 
-                    {message && <div style={{ background: '#d4edda', color: '#155724', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '14px' }}>{message}</div>}
+                    {message && <div style={{ background: 'rgba(40, 167, 69, 0.1)', color: '#28a745', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '14px', border: '1px solid rgba(40, 167, 69, 0.2)' }}>{message}</div>}
 
                     <form onSubmit={handleSubmit} className="profile-form">
                         <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>FULL NAME</label>
-                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>FULL NAME</label>
+                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                     <User size={16} color="#888" style={{ marginRight: '10px' }} />
                                     <input
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
                                         onFocus={handleFocus}
-                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
+                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500', color: 'var(--text-main)' }}
                                     />
                                 </div>
                             </div>
 
                             <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>EMAIL</label>
-                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>EMAIL</label>
+                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                     <Mail size={16} color="#888" style={{ marginRight: '10px' }} />
                                     <input
                                         name="email"
                                         value={formData.email}
                                         disabled
-                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', color: '#999', cursor: 'not-allowed', fontSize: '14px' }}
+                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', color: 'var(--text-muted)', cursor: 'not-allowed', fontSize: '14px' }}
                                     />
                                 </div>
                             </div>
 
                             <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>PHONE</label>
-                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>PHONE</label>
+                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                     <Phone size={16} color="#888" style={{ marginRight: '10px' }} />
                                     <input
                                         name="phone"
@@ -136,8 +136,8 @@ const Profile = () => {
                             {user.role === 'client' && (
                                 <>
                                     <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>ADDRESS</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>ADDRESS</label>
+                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                             <MapPin size={16} color="#888" style={{ marginRight: '10px' }} />
                                             <input
                                                 name="address"
@@ -149,8 +149,8 @@ const Profile = () => {
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>CITY</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>CITY</label>
+                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                             <Building size={16} color="#888" style={{ marginRight: '10px' }} />
                                             <input
                                                 name="city"
@@ -162,8 +162,8 @@ const Profile = () => {
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>PINCODE</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>PINCODE</label>
+                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                             <MapPin size={16} color="#888" style={{ marginRight: '10px' }} />
                                             <input
                                                 name="pincode"
@@ -180,8 +180,8 @@ const Profile = () => {
                             {user.role === 'provider' && (
                                 <>
                                     <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>COMPANY NAME</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>COMPANY NAME</label>
+                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                             <Building size={16} color="#888" style={{ marginRight: '10px' }} />
                                             <input
                                                 name="companyName"
@@ -193,8 +193,8 @@ const Profile = () => {
                                         </div>
                                     </div>
                                     <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: '#666', letterSpacing: '0.5px' }}>LICENSE NO</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8f9fa', border: '1px solid #e1e1e1', borderRadius: '8px', padding: '8px 12px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>LICENSE NO</label>
+                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
                                             <CreditCard size={16} color="#888" style={{ marginRight: '10px' }} />
                                             <input
                                                 name="licenseNo"
