@@ -1,13 +1,33 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files
 .env
-node`_modules/
+**/.env
+
+# Build outputs
 dist/
-.vscode/
-.DS_Store
-npm-debug.log
-yarn-error.log
-coverage/
-.idea/
+build/
+**/dist/
+**/build/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 *.log
+
+# Coverage
+coverage/
+**/coverage/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+
+# Temp / swap files
 *.swp
 *.swo
 *.bak
