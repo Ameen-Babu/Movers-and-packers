@@ -39,9 +39,26 @@
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-[data-theme='dark'] .btn-outline-white {
-  color: var(--primary);
-  border-color: var(--primary);
+[data-theme='dark'] .btn-outline,
+[data-theme='dark'] .btn-outline-white,
+[data-theme='dark'] .btn-outline-sm {
+  background: transparent !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme='dark'] .btn-primary,
+[data-theme='dark'] .auth-btn,
+[data-theme='dark'] .btn-primary-sm {
+  background: var(--primary) !important;
+  color: #1a1a1a !important;
+}
+
+[data-theme='dark'] .btn-outline:hover,
+[data-theme='dark'] .btn-outline-white:hover,
+[data-theme='dark'] .btn-outline-sm:hover {
+  background: var(--primary) !important;
+  color: #1a1a1a !important;
 }
 
 * {
@@ -103,7 +120,7 @@ button {
 
 .btn-primary {
   background: var(--primary);
-  color: var(--white);
+  color: #1a1a1a;
   padding: 12px 28px;
   border-radius: 50px;
   font-weight: 700;
@@ -133,7 +150,7 @@ button {
 
 .btn-outline:hover {
   background: var(--primary);
-  color: var(--white);
+  color: #1a1a1a;
 }
 
 .btn-outline-white {
@@ -148,6 +165,31 @@ button {
 .btn-outline-white:hover {
   background: var(--primary);
   color: #1a1a1a;
+}
+
+/* Base Styles for Small Buttons */
+.btn-primary-sm,
+.btn-outline-sm {
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary-sm {
+  background: var(--primary);
+  color: #1a1a1a;
+}
+
+.btn-outline-sm {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
 }
 
 .glass-card {
