@@ -51,14 +51,14 @@
 [data-theme='dark'] .auth-btn,
 [data-theme='dark'] .btn-primary-sm {
   background: var(--primary) !important;
-  color: #1a1a1a !important;
+  color: #000000 !important;
 }
 
 [data-theme='dark'] .btn-outline:hover,
 [data-theme='dark'] .btn-outline-white:hover,
 [data-theme='dark'] .btn-outline-sm:hover {
   background: var(--primary) !important;
-  color: #1a1a1a !important;
+  color: #000000 !important;
 }
 
 * {
@@ -119,8 +119,8 @@ button {
 }
 
 .btn-primary {
-  background: var(--primary);
-  color: #1a1a1a;
+  background: var(--primary) !important;
+  color: #000000 !important;
   padding: 12px 28px;
   border-radius: 50px;
   font-weight: 700;
@@ -149,8 +149,8 @@ button {
 }
 
 .btn-outline:hover {
-  background: var(--primary);
-  color: #1a1a1a;
+  background: var(--primary) !important;
+  color: #000000 !important;
 }
 
 .btn-outline-white {
@@ -163,8 +163,8 @@ button {
 }
 
 .btn-outline-white:hover {
-  background: var(--primary);
-  color: #1a1a1a;
+  background: var(--primary) !important;
+  color: #000000 !important;
 }
 
 /* Base Styles for Small Buttons */
@@ -182,8 +182,8 @@ button {
 }
 
 .btn-primary-sm {
-  background: var(--primary);
-  color: #1a1a1a;
+  background: var(--primary) !important;
+  color: #000000 !important;
 }
 
 .btn-outline-sm {
@@ -840,8 +840,8 @@ input[type="date"] {
   width: 200px;
   margin: 30px auto 0;
   display: block;
-  background: var(--primary);
-  color: #1a1a1a;
+  background: var(--primary) !important;
+  color: #000000 !important;
   padding: 15px;
   border-radius: 50px;
   font-weight: 700;
@@ -849,8 +849,8 @@ input[type="date"] {
 }
 
 .auth-btn:hover {
-  background: transparent;
-  color: var(--primary);
+  background: transparent !important;
+  color: var(--primary) !important;
   transform: scale(1.05);
 }
 
