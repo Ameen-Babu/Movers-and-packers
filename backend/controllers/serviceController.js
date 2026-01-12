@@ -7,7 +7,7 @@ const Provider = require('../models/Provider');
 
 const createServiceRequest = async (req, res) => {
     try {
-        const { pickupLocation, dropoffLocation, movingDate, serviceType, estimatedPrice } = req.body;
+        const { pickupLocation, dropoffLocation, movingDate, serviceType, weight, estimatedPrice } = req.body;
 
         if (!pickupLocation || !dropoffLocation || !movingDate || !serviceType) {
             return res.status(400).json({ message: 'Please provide all required fields' });
@@ -24,6 +24,7 @@ const createServiceRequest = async (req, res) => {
             dropoffLocation,
             movingDate,
             serviceType,
+            weight,
             estimatedPrice,
         });
 

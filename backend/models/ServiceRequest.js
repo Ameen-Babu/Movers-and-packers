@@ -34,6 +34,9 @@ const serviceRequestSchema = new mongoose.Schema({
     estimatedPrice: {
         type: Number,
     },
+    weight: {
+        type: Number,
+    },
     finalPrice: {
         type: Number,
     }

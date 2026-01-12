@@ -10,28 +10,101 @@ const Booking = () => {
         dropoffLocation: '',
         movingDate: '',
         serviceType: 'local-move',
+        weight: 10,
         estimatedPrice: 3000
     });
+    const [distance, setDistance] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState('');
 
-    const priceMap = {
+    const baseRates = {
         'local-move': 3000,
-        'intercity': 12000,
-        'international': 75000,
-        'office-shift': 8500
+        'intercity': 8000,
+        'international': 50000,
+        'office-shift': 12000,
+        'house-shift': 12000
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        if (name === 'serviceType') {
-            setFormData({
-                ...formData,
-                serviceType: value,
-                estimatedPrice: priceMap[value] || 3000
+    const calculatePrice = (dist, wt, type) => {
+        const base = baseRates[type] || 3000;
+        const distCost = dist * 18; // ₹18 per km
+
+        // No weight charge for shifting services (Package based)
+        const isPackage = type === 'house-shift' || type === 'office-shift';
+        const weightCost = isPackage ? 0 : (wt * 5); // ₹5 per kg
+
+        const subtotal = base + distCost + weightCost;
+        const tax = subtotal * 0.05; // 5% GST
+        return Math.round(subtotal + tax);
+    };
+
+    const fetchDistance = async (p1, p2) => {
+        if (!p1 || !p2) return 0;
+        try {
+            setCalculating(true);
+            const apiKey = import.meta.env.VITE_GEOAPIFY_API_KEY;
+
+            if (!apiKey || apiKey === 'your_geoapify_api_key_here') {
+                console.warn('Geoapify key missing or placeholder.');
+                setError('Distance API key missing in frontend/.env');
+                return 0;
+            }
+
+            // 1. Geocoding
+            const res1 = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(p1)}&apiKey=${apiKey}`);
+            const data1 = await res1.json();
+            const res2 = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(p2)}&apiKey=${apiKey}`);
+            const data2 = await res2.json();
+
+            if (!data1.features?.length || !data2.features?.length) {
+                console.warn('Locations not found');
+                return 0;
+            }
+
+            const source = data1.features[0].geometry.coordinates;
+            const target = data2.features[0].geometry.coordinates;
+
+            // 2. Matrix
+            const matrixRes = await fetch(`https://api.geoapify.com/v1/routematrix?apiKey=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: "drive", sources: [{ location: source }], targets: [{ location: target }] })
             });
+            const matrixData = await matrixRes.json();
+
+            if (matrixData.sources_to_targets?.[0][0]) {
+                const km = matrixData.sources_to_targets[0][0].distance / 1000;
+                console.log(`Professional Distance: ${km} km`);
+                return km;
+            }
+            return 0;
+        } catch (err) {
+            console.error('API Error:', err);
+            return 0;
+        } finally {
+            setCalculating(false);
+        }
+    };
+
+    const handleChange = async (e) => {
+        const { name, value } = e.target;
+        const newVal = name === 'estimatedPrice' || name === 'weight' ? Number(value) : value;
+
+        const updatedData = { ...formData, [name]: newVal };
+        setFormData(updatedData);
+
+        if (name === 'pickupLocation' || name === 'dropoffLocation') {
+            // Trigger distance fetch when both addresses reach 3+ characters
+            if (updatedData.pickupLocation.length >= 3 && updatedData.dropoffLocation.length >= 3) {
+                const d = await fetchDistance(updatedData.pickupLocation, updatedData.dropoffLocation);
+                setDistance(d);
+                updatedData.estimatedPrice = calculatePrice(d, updatedData.weight, updatedData.serviceType);
+                setFormData({ ...updatedData });
+            }
         } else {
-            setFormData({ ...formData, [name]: value });
+            updatedData.estimatedPrice = calculatePrice(distance, updatedData.weight, updatedData.serviceType);
+            setFormData({ ...updatedData });
         }
     };
 
@@ -111,7 +184,7 @@ const Booking = () => {
                         });
 
                         if (verifyRes.ok) {
-                            navigate('/dashboard');
+                            navigate('/orders');
                         } else {
                             setError('Payment verification failed');
                         }
@@ -188,12 +261,51 @@ const Booking = () => {
 
                             <div className="form-group">
                                 <label><Package size={16} /> SERVICE TYPE</label>
-                                <select name="serviceType" onChange={handleChange} className="auth-select">
+                                <select name="serviceType" value={formData.serviceType} onChange={handleChange} className="auth-select">
                                     <option value="local-move">Local Move</option>
                                     <option value="intercity">Intercity Move</option>
                                     <option value="international">International</option>
+                                    <option value="house-shift">House Shifting</option>
                                     <option value="office-shift">Office Shifting</option>
                                 </select>
+                            </div>
+
+                            {!(formData.serviceType === 'house-shift' || formData.serviceType === 'office-shift') && (
+                                <div className="form-group">
+                                    <label><Package size={16} /> WEIGHT (KG)</label>
+                                    <div className="input-wrapper">
+                                        <input
+                                            name="weight"
+                                            type="number"
+                                            min="1"
+                                            placeholder="Enter approximate weight in KG"
+                                            value={formData.weight}
+                                            required
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="price-breakdown glass-card p-20 mt-30">
+                            <div className="breakdown-row">
+                                <span>Distance:</span>
+                                <strong>{calculating ? 'Calculating...' : `${distance.toFixed(1)} km`}</strong>
+                            </div>
+                            {!(formData.serviceType === 'house-shift' || formData.serviceType === 'office-shift') && (
+                                <div className="breakdown-row">
+                                    <span>Consignment weight:</span>
+                                    <strong>{formData.weight} kg</strong>
+                                </div>
+                            )}
+                            <div className="breakdown-row">
+                                <span>Base Rate + Fuel + Handling:</span>
+                                <strong>₹{Math.round(formData.estimatedPrice / 1.05)}</strong>
+                            </div>
+                            <div className="breakdown-row highlight">
+                                <span>GST (5%):</span>
+                                <strong>₹{Math.round(formData.estimatedPrice * 0.05 / 1.05)}</strong>
                             </div>
                         </div>
 
@@ -201,8 +313,8 @@ const Booking = () => {
 
                         <div className="booking-footer">
                             <div className="estimated-cost">
-                                <span>Estimated Price:</span>
-                                <h3>₹{formData.estimatedPrice}</h3>
+                                <span>Final Estimate:</span>
+                                <h3>₹{formData.estimatedPrice.toLocaleString('en-IN')}</h3>
                             </div>
                             <button type="submit" className="btn-primary" disabled={loading}>
                                 {loading ? 'Booking...' : 'Confirm Booking'} <ArrowRight size={20} />
