@@ -24,6 +24,7 @@ Hydrox Movers is a high-fidelity logistics platform designed to provide a seamle
 - [x] **Cinematic UI/UX**: Centralized CSS with premium animations, responsive layouts, and modern typography.
 - [x] **Real-time Sync**: Custom event-driven Navbar updates for seamless user transitions.
 - [x] **Financial Engine**: Stripe/Razorpay integration for automated billing.
+- [x] **Distance Calculation Engine**: Geoapify integration for KM-based pricing.  
 
 ### ⌛ In Development / Roadmap
 - [ ] **Trust System**: Provider license verification workflow.
