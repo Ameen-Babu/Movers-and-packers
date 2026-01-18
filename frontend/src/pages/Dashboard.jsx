@@ -5,6 +5,7 @@ import { Truck, Clock, CheckCircle, AlertCircle, Star } from 'lucide-react';
 const Dashboard = () => {
     const [requests, setRequests] = useState([]);
     const [users, setUsers] = useState([]);
+    const [pendingAdmins, setPendingAdmins] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -53,6 +54,11 @@ const Dashboard = () => {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
                     if (usersRes.ok) setUsers(await usersRes.json());
+
+                    const pendingRes = await fetch(`${apiBaseUrl}/admin/pending-admins`, {
+                        headers: { 'Authorization': `Bearer ${user.token}` }
+                    });
+                    if (pendingRes.ok) setPendingAdmins(await pendingRes.json());
                 }
             } catch (err) {
                 setError('Connection error');
@@ -148,6 +154,41 @@ const Dashboard = () => {
         setIsModalOpen(true);
     };
 
+    const handleApproveAdmin = async (id) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${apiBaseUrl}/admin/approve-admin/${id}`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (res.ok) {
+                setPendingAdmins(pendingAdmins.filter(a => a._id !== id));
+                alert('Admin approved!');
+            }
+        } catch (err) {
+            alert('Approval failed');
+        }
+    };
+
+    const handleRejectAdmin = async (id) => {
+        if (!window.confirm('Reject and delete this admin request?')) return;
+        const user = JSON.parse(localStorage.getItem('user'));
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${apiBaseUrl}/admin/users/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (res.ok) {
+                setPendingAdmins(pendingAdmins.filter(a => a._id !== id));
+                alert('Admin request rejected');
+            }
+        } catch (err) {
+            alert('Rejection failed');
+        }
+    };
+
     return (
         <div className="dashboard-page section-padding">
             <div className="container">
@@ -166,9 +207,13 @@ const Dashboard = () => {
                 </div>
 
                 {userRole?.toLowerCase() === 'admin' && (
-                    <div className="admin-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
+                    <div className="admin-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
                         <button className={`btn-outline-sm ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>Orders</button>
                         <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Customers</button>
+                        <button className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')} style={{ position: 'relative' }}>
+                            Pending Admins
+                            {pendingAdmins.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff4d4d', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingAdmins.length}</span>}
+                        </button>
                         <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Dashboard</button>
                     </div>
                 )}
@@ -269,7 +314,46 @@ const Dashboard = () => {
                             </tbody>
                         </table>
                     </div>
-                ) : (
+                ) : activeTab === 'pending' ? (
+                    <div className="users-list glass-card p-30">
+                        <h3 style={{ marginBottom: '20px', color: 'var(--secondary)' }}>Pending Admin Approvals</h3>
+                        {pendingAdmins.length === 0 ? (
+                            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No pending admin requests</p>
+                        ) : (
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
+                                        <th style={{ padding: '10px' }}>Name</th>
+                                        <th style={{ padding: '10px' }}>Email</th>
+                                        <th style={{ padding: '10px' }}>Phone</th>
+                                        <th style={{ padding: '10px' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pendingAdmins.map(admin => (
+                                        <tr key={admin._id}>
+                                            <td style={{ padding: '10px' }}>{admin.name}</td>
+                                            <td style={{ padding: '10px' }}>{admin.email}</td>
+                                            <td style={{ padding: '10px' }}>{admin.phone}</td>
+                                            <td style={{ padding: '10px', display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    className="btn-primary-sm"
+                                                    style={{ borderRadius: '50px', padding: '6px 15px', fontSize: '0.8rem' }}
+                                                    onClick={() => handleApproveAdmin(admin._id)}
+                                                >Approve</button>
+                                                <button
+                                                    className="btn-outline-sm"
+                                                    style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '6px 15px', fontSize: '0.8rem' }}
+                                                    onClick={() => handleRejectAdmin(admin._id)}
+                                                >Reject</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                ) : activeTab === 'stats' ? (
                     <div className="stats-view grid-3">
                         <div className="glass-card p-30 text-center">
                             <small>TOTAL USERS</small>
@@ -284,7 +368,7 @@ const Dashboard = () => {
                             <h2 style={{ fontSize: '3rem', margin: '10px 0' }}>{stats?.providers || 0}</h2>
                         </div>
                     </div>
-                )}
+                ) : null}
             </div>
 
             {

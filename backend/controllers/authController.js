@@ -33,13 +33,14 @@ const registerUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create base User
+        // Create base User - admins need approval
         const user = await User.create({
             name,
             email,
             passwordHash: hashedPassword,
             phone,
             role,
+            isApproved: role === 'admin' ? false : true,
         });
 
         // Create specific profile based on role
@@ -65,25 +66,27 @@ const registerUser = async (req, res) => {
                 licenseNo,
             });
         } else if (role === 'admin') {
-            if (!registerId) {
-                await User.findByIdAndDelete(user._id);
-                return res.status(400).json({ message: 'Please add registerId for admin' });
-            }
             await Admin.create({
                 userId: user._id,
-                registerId,
             });
         }
 
         if (user) {
-            res.status(201).json({
-                _id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                phone: user.phone,
-                token: generateToken(user.id),
-            });
+            if (role === 'admin') {
+                res.status(201).json({
+                    message: 'Admin registration submitted. Please wait for approval from an existing admin.',
+                    pending: true,
+                });
+            } else {
+                res.status(201).json({
+                    _id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    phone: user.phone,
+                    token: generateToken(user.id),
+                });
+            }
         }
     } catch (error) {
         console.log(error);
@@ -98,6 +101,11 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.passwordHash))) {
+        // Block unapproved admins
+        if (user.role === 'admin' && !user.isApproved) {
+            return res.status(403).json({ message: 'Your admin account is pending approval' });
+        }
+
         let profileData = {};
         if (user.role === 'client') {
             profileData = await Client.findOne({ userId: user._id });
@@ -192,5 +200,4 @@ module.exports = {
     registerUser,
     loginUser,
     getMe,
-    updateProfile,
 };

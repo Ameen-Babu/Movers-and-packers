@@ -6,10 +6,6 @@ const adminSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
         unique: true,
-    },
-    registerId: {
-        type: String,
-        required: true,
     }
 });
 

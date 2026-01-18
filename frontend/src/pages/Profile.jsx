@@ -1,226 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Building, CreditCard, Save } from 'lucide-react';
+import { User, Mail, Phone, Shield } from 'lucide-react';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        pincode: '',
-        companyName: '',
-        licenseNo: ''
-    });
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         if (storedUser) {
             setUser(storedUser);
-            setFormData({
-                name: storedUser.name || '',
-                email: storedUser.email || '',
-                phone: storedUser.phone || '',
-                address: storedUser.address || '',
-                city: storedUser.city || '',
-                pincode: storedUser.pincode || '',
-                companyName: storedUser.companyName || '',
-                licenseNo: storedUser.licenseNo || ''
-            });
         } else {
             window.location.href = '/login';
         }
     }, []);
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    if (!user) return null;
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage('');
-
-        try {
-            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiBaseUrl}/auth/profile`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                const updatedUser = { ...user, ...data };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                setUser(updatedUser);
-                window.dispatchEvent(new Event('storage'));
-                window.dispatchEvent(new Event('userLogin'));
-                setMessage('Profile updated successfully');
-            } else {
-                setMessage(data.message || 'Update failed');
-            }
-        } catch (err) {
-            setMessage('Server connection error');
-        } finally {
-            setLoading(false);
+    const getRoleBadgeColor = (role) => {
+        switch (role?.toLowerCase()) {
+            case 'admin': return { bg: '#ffe5e5', color: '#d32f2f' };
+            case 'provider': return { bg: '#e3f2fd', color: '#1976d2' };
+            default: return { bg: '#e8f5e9', color: '#2e7d32' };
         }
     };
 
-    const handleFocus = (e) => {
-        e.target.select();
-    };
-
-    if (!user) return null;
+    const roleStyle = getRoleBadgeColor(user.role);
 
     return (
         <div className="profile-page section-padding" style={{ paddingTop: '40px' }}>
             <div className="container">
-                <div className="white-card" style={{ maxWidth: '600px', margin: '0 auto', padding: '30px' }}>
-                    <h2 style={{ marginBottom: '25px', color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.5rem' }}>
+                <div className="white-card" style={{ maxWidth: '500px', margin: '0 auto', padding: '40px' }}>
+                    <h2 style={{ marginBottom: '30px', color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.5rem' }}>
                         <User size={24} color="var(--primary)" /> My Profile
                     </h2>
 
-                    {message && <div style={{ background: 'rgba(40, 167, 69, 0.1)', color: '#28a745', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '14px', border: '1px solid rgba(40, 167, 69, 0.2)' }}>{message}</div>}
-
-                    <form onSubmit={handleSubmit} className="profile-form">
-                        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>FULL NAME</label>
-                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                    <User size={16} color="#888" style={{ marginRight: '10px' }} />
-                                    <input
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        onFocus={handleFocus}
-                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500', color: 'var(--text-main)' }}
-                                    />
-                                </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px', background: 'var(--bg-light)', borderRadius: '12px' }}>
+                            <User size={20} color="var(--primary)" />
+                            <div>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.5px', marginBottom: '4px' }}>NAME</p>
+                                <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-main)' }}>{user.name || 'N/A'}</p>
                             </div>
-
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>EMAIL</label>
-                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                    <Mail size={16} color="#888" style={{ marginRight: '10px' }} />
-                                    <input
-                                        name="email"
-                                        value={formData.email}
-                                        disabled
-                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', color: 'var(--text-muted)', cursor: 'not-allowed', fontSize: '14px' }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>PHONE</label>
-                                <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                    <Phone size={16} color="#888" style={{ marginRight: '10px' }} />
-                                    <input
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                        onFocus={handleFocus}
-                                        style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
-                                    />
-                                </div>
-                            </div>
-
-                            {user.role === 'client' && (
-                                <>
-                                    <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>ADDRESS</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                            <MapPin size={16} color="#888" style={{ marginRight: '10px' }} />
-                                            <input
-                                                name="address"
-                                                value={formData.address}
-                                                onChange={handleChange}
-                                                onFocus={handleFocus}
-                                                style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>CITY</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                            <Building size={16} color="#888" style={{ marginRight: '10px' }} />
-                                            <input
-                                                name="city"
-                                                value={formData.city}
-                                                onChange={handleChange}
-                                                onFocus={handleFocus}
-                                                style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>PINCODE</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                            <MapPin size={16} color="#888" style={{ marginRight: '10px' }} />
-                                            <input
-                                                name="pincode"
-                                                value={formData.pincode}
-                                                onChange={handleChange}
-                                                onFocus={handleFocus}
-                                                style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-
-                            {user.role === 'provider' && (
-                                <>
-                                    <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>COMPANY NAME</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                            <Building size={16} color="#888" style={{ marginRight: '10px' }} />
-                                            <input
-                                                name="companyName"
-                                                value={formData.companyName}
-                                                onChange={handleChange}
-                                                onFocus={handleFocus}
-                                                style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>LICENSE NO</label>
-                                        <div className="input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 12px' }}>
-                                            <CreditCard size={16} color="#888" style={{ marginRight: '10px' }} />
-                                            <input
-                                                name="licenseNo"
-                                                value={formData.licenseNo}
-                                                onChange={handleChange}
-                                                onFocus={handleFocus}
-                                                style={{ border: 'none', background: 'transparent', width: '100%', outline: 'none', fontSize: '14px', fontWeight: '500' }}
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
                         </div>
 
-                        <button
-                            type="submit"
-                            className="btn-primary"
-                            disabled={loading}
-                            style={{ marginTop: '25px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', fontSize: '14px' }}
-                        >
-                            {loading ? 'Saving...' : <><Save size={16} /> Save Changes</>}
-                        </button>
-                    </form>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px', background: 'var(--bg-light)', borderRadius: '12px' }}>
+                            <Mail size={20} color="var(--primary)" />
+                            <div>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.5px', marginBottom: '4px' }}>EMAIL</p>
+                                <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-main)' }}>{user.email || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px', background: 'var(--bg-light)', borderRadius: '12px' }}>
+                            <Phone size={20} color="var(--primary)" />
+                            <div>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.5px', marginBottom: '4px' }}>PHONE</p>
+                                <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-main)' }}>{user.phone || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px', background: 'var(--bg-light)', borderRadius: '12px' }}>
+                            <Shield size={20} color="var(--primary)" />
+                            <div>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.5px', marginBottom: '4px' }}>ROLE</p>
+                                <span style={{
+                                    display: 'inline-block',
+                                    padding: '3px 8px',
+                                    borderRadius: '15px',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    background: roleStyle.bg,
+                                    color: roleStyle.color
+                                }}>
+                                    {user.role || 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 };
 

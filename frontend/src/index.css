@@ -797,12 +797,12 @@ button {
 }
 
 .auth-error {
-  background: rgba(255, 77, 77, 0.1);
+  background: transparent;
   color: #ff4d4d;
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 30px;
-  border: 1px solid rgba(255, 77, 77, 0.2);
+  border: none;
 }
 
 .form-grid {

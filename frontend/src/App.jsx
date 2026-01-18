@@ -7,6 +7,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import AdminSignup from './pages/AdminSignup';
 import Booking from './pages/Booking';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
@@ -26,6 +27,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/admin" element={<AdminSignup />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashboard /></ProtectedRoute>} />
             <Route path="/orders" element={<Orders />} />

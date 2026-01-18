@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['admin', 'client', 'provider'],
         required: true,
+    },
+    isApproved: {
+        type: Boolean,
+        default: true,
     }
 }, {
     timestamps: true,
