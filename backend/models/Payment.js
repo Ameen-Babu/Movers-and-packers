@@ -31,7 +31,7 @@ const paymentSchema = new mongoose.Schema({
         default: 'pending',
     },
     releaseStatus: {
-        type: String, // e.g., 'held', 'released'
+        type: String, 
         default: 'held',
     },
     transactionId: {

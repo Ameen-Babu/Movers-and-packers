@@ -7,7 +7,7 @@ const notificationSchema = new mongoose.Schema({
         required: true,
     },
     type: {
-        type: String, // e.g., 'booking_update', 'payment'
+        type: String, 
         required: true,
     },
     message: {

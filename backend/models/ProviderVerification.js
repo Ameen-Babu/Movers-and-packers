@@ -8,7 +8,7 @@ const providerVerificationSchema = new mongoose.Schema({
     },
     adminUserId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Admin is a User
+        ref: 'User', 
     },
     status: {
         type: String,

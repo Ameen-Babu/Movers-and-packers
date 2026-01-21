@@ -1,5 +1,5 @@
 // book service
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, MapPin, Calendar, Truck, ArrowRight } from 'lucide-react';
 
@@ -26,11 +26,12 @@ const Booking = () => {
         'house-shift': 12000
     };
 
+    
     const calculatePrice = (dist, wt, type) => {
         const base = baseRates[type] || 3000;
         const distCost = dist * 18; // ₹18 per km
 
-        // No weight charge for shifting services (Package based)
+        
         const isPackage = type === 'house-shift' || type === 'office-shift';
         const weightCost = isPackage ? 0 : (wt * 5); // ₹5 per kg
 
@@ -38,6 +39,30 @@ const Booking = () => {
         const tax = subtotal * 0.05; // 5% GST
         return Math.round(subtotal + tax);
     };
+
+    
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (formData.pickupLocation.length >= 3 && formData.dropoffLocation.length >= 3) {
+                const dist = await fetchDistance(formData.pickupLocation, formData.dropoffLocation);
+                if (dist > 0) setDistance(dist);
+            }
+        }, 1000); // 1 second delay
+
+        return () => clearTimeout(timer);
+    }, [formData.pickupLocation, formData.dropoffLocation]);
+
+    
+    useEffect(() => {
+        const newPrice = calculatePrice(distance, formData.weight, formData.serviceType);
+        setFormData(prev => {
+            
+            if (prev.estimatedPrice !== newPrice) {
+                return { ...prev, estimatedPrice: newPrice };
+            }
+            return prev;
+        });
+    }, [distance, formData.weight, formData.serviceType]);
 
     const fetchDistance = async (p1, p2) => {
         if (!p1 || !p2) return 0;
@@ -47,25 +72,23 @@ const Booking = () => {
 
             if (!apiKey || apiKey === 'your_geoapify_api_key_here') {
                 console.warn('Geoapify key missing or placeholder.');
-                setError('Distance API key missing in frontend/.env');
                 return 0;
             }
 
-            // 1. Geocoding
+
             const res1 = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(p1)}&apiKey=${apiKey}`);
             const data1 = await res1.json();
             const res2 = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(p2)}&apiKey=${apiKey}`);
             const data2 = await res2.json();
 
             if (!data1.features?.length || !data2.features?.length) {
-                console.warn('Locations not found');
                 return 0;
             }
 
             const source = data1.features[0].geometry.coordinates;
             const target = data2.features[0].geometry.coordinates;
 
-            // 2. Matrix
+
             const matrixRes = await fetch(`https://api.geoapify.com/v1/routematrix?apiKey=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -87,25 +110,11 @@ const Booking = () => {
         }
     };
 
-    const handleChange = async (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         const newVal = name === 'estimatedPrice' || name === 'weight' ? Number(value) : value;
 
-        const updatedData = { ...formData, [name]: newVal };
-        setFormData(updatedData);
-
-        if (name === 'pickupLocation' || name === 'dropoffLocation') {
-            // Trigger distance fetch when both addresses reach 3+ characters
-            if (updatedData.pickupLocation.length >= 3 && updatedData.dropoffLocation.length >= 3) {
-                const d = await fetchDistance(updatedData.pickupLocation, updatedData.dropoffLocation);
-                setDistance(d);
-                updatedData.estimatedPrice = calculatePrice(d, updatedData.weight, updatedData.serviceType);
-                setFormData({ ...updatedData });
-            }
-        } else {
-            updatedData.estimatedPrice = calculatePrice(distance, updatedData.weight, updatedData.serviceType);
-            setFormData({ ...updatedData });
-        }
+        setFormData(prev => ({ ...prev, [name]: newVal }));
     };
 
     const handleSubmit = async (e) => {
