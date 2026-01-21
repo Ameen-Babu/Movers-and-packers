@@ -17,7 +17,7 @@ const Admin = require('../models/Admin');
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password, role, phone, address, city, pincode, companyName, licenseNo, registerId } = req.body;
+        const { name, email, password, role, phone, address, city, pincode, companyName, licenseNo } = req.body;
 
         if (!name || !email || !password || !role || !phone) {
             return res.status(400).json({ message: 'Please add all required base fields' });
