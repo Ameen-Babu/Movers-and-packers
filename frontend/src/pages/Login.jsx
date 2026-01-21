@@ -84,13 +84,7 @@ const Login = () => {
                         </button>
                     </form>
 
-                    <div className="social-auth">
-                        <p>OR LOGIN WITH</p>
-                        <div className="social-icons">
-                            <button className="social-btn google">G</button>
-                            <button className="social-btn facebook">f</button>
-                        </div>
-                    </div>
+
 
                     <p className="auth-footer">
                         Don't have an account? <Link to="/signup">Sign Up</Link>
