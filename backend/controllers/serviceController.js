@@ -1,4 +1,4 @@
-// service logic
+
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
 const Provider = require('../models/Provider');
@@ -36,20 +36,31 @@ const createServiceRequest = async (req, res) => {
 
 const getServiceRequests = async (req, res) => {
     try {
-        let requests;
-        if (req.user.role === 'client') {
+        let requests = [];
+        const role = (req.user?.role || '').toLowerCase();
+
+        if (role === 'client') {
             const client = await Client.findOne({ userId: req.user._id });
-            requests = await ServiceRequest.find({ clientId: client._id });
-        } else if (req.user.role === 'provider') {
-            const provider = await Provider.findOne({ userId: req.user._id });
-            requests = await ServiceRequest.find({ providerId: provider._id });
-        } else if (req.user.role === 'admin') {
+            if (client) {
+                requests = await ServiceRequest.find({ clientId: client._id });
+            }
+        } else if (role === 'provider') {
+            if (req.query.view === 'all') {
+                requests = await ServiceRequest.find({});
+            } else {
+                const provider = await Provider.findOne({ userId: req.user._id });
+                if (provider) {
+                    requests = await ServiceRequest.find({ providerId: provider._id });
+                }
+            }
+        } else if (role === 'admin' || role === 'superadmin') {
             requests = await ServiceRequest.find({});
         }
 
-        res.status(200).json(requests);
+        return res.status(200).json(requests || []);
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('getServiceRequests error:', error);
+        return res.status(500).json({ message: 'Server error fetching service requests', error: error.message });
     }
 };
 
@@ -122,10 +133,37 @@ const deleteServiceRequest = async (req, res) => {
     }
 };
 
+const claimServiceRequest = async (req, res) => {
+    try {
+        const provider = await Provider.findOne({ userId: req.user._id });
+        if (!provider) {
+            return res.status(403).json({ message: 'Only registered service providers can claim requests' });
+        }
+
+        const request = await ServiceRequest.findById(req.params.id);
+        if (!request) {
+            return res.status(404).json({ message: 'Service request not found' });
+        }
+
+        if (request.status !== 'pending') {
+            return res.status(400).json({ message: 'Only pending requests can be claimed' });
+        }
+
+        request.providerId = provider._id;
+        request.status = 'accepted';
+        await request.save();
+
+        res.status(200).json(request);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error claiming request', error: error.message });
+    }
+};
+
 module.exports = {
     createServiceRequest,
     getServiceRequests,
     getServiceRequestById,
     updateServiceStatus,
-    deleteServiceRequest
+    deleteServiceRequest,
+    claimServiceRequest
 };

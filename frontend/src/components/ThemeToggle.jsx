@@ -11,15 +11,17 @@ const ThemeToggle = () => {
             className={`theme-toggle-btn ${theme}`}
             aria-label="Toggle Theme"
             style={{
-                background: 'rgba(247, 183, 51, 0.1)',
-                color: 'var(--primary)',
-                width: '40px',
-                height: '40px',
+                background: 'var(--bg-subtle)',
+                color: 'var(--text-main)',
+                border: '1px solid var(--border-color)',
+                width: '38px',
+                height: '38px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.2s ease',
+                cursor: 'pointer'
             }}
         >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
@@ -28,4 +30,3 @@ const ThemeToggle = () => {
 };
 
 export default ThemeToggle;
-// simple theme toggle

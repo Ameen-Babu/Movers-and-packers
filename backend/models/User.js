@@ -20,10 +20,14 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'client', 'provider'],
+        enum: ['admin', 'superadmin', 'client'],
         required: true,
     },
     isApproved: {
+        type: Boolean,
+        default: true,
+    },
+    isActive: {
         type: Boolean,
         default: true,
     }

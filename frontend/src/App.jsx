@@ -28,11 +28,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<AdminSignup />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashboard /></ProtectedRoute>} />
+            <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'superadmin']}><Dashboard /></ProtectedRoute>} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/profile" element={<Profile />} />
-            {/* Fallback to home */}
             <Route path="*" element={<Home />} />
           </Routes>
         </main>
@@ -41,5 +40,4 @@ function App() {
     </Router>
   );
 }
-
 export default App;

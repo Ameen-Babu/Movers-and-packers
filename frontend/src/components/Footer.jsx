@@ -1,51 +1,69 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, MapPin, ShieldCheck, Clock, Truck, ChevronRight } from 'lucide-react';
 
 const Footer = () => {
     return (
-        <footer className="footer">
-            <div className="container footer-grid">
-                <div className="footer-brand">
-                    <h2 className="logo">HYDROX <span className="logo-highlight">MOVERS</span></h2>
-                    <p className="footer-desc">
-                        Professional moving and packing services you can trust. Making your transition smooth and stress-free.
-                    </p>
-                    <div className="social-links">
-                        <a href="#"><Facebook size={20} /></a>
-                        <a href="#"><Twitter size={20} /></a>
-                        <a href="#"><Instagram size={20} /></a>
+        <footer className="site-footer">
+            <div className="container footer-main-grid">
+                <div className="footer-brand-col">
+                    <div className="footer-logo">
+                        <span className="footer-brand-name">HYDROX <span className="brand-accent">MOVERS</span></span>
                     </div>
+                    <p className="footer-about-text">
+                        Hydrox Movers & Logistics provides professional residential relocation, commercial shifting, and cargo transport across India and international routes.
+                    </p>
                 </div>
 
-                <div className="footer-links">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="/">Home page</a></li>
-                        <li><a href="/prices">Our prices</a></li>
-                        <li><a href="/announcements">Announcements</a></li>
-                        <li><a href="/contact">Communication</a></li>
+                <div className="footer-links-col">
+                    <h4 className="footer-heading">Services</h4>
+                    <ul className="footer-menu">
+                        <li><Link to="/booking"><ChevronRight size={14} /> Household Relocation</Link></li>
+                        <li><Link to="/booking"><ChevronRight size={14} /> Commercial & Office Shifting</Link></li>
+                        <li><Link to="/booking"><ChevronRight size={14} /> Intercity Express Freight</Link></li>
+                        <li><Link to="/booking"><ChevronRight size={14} /> Warehouse & Short Storage</Link></li>
+                        <li><Link to="/booking"><ChevronRight size={14} /> Fragile & Artwork Crating</Link></li>
                     </ul>
                 </div>
 
-                <div className="footer-contact">
-                    <h3>Contact Us</h3>
-                    <div className="contact-item">
-                        <MapPin size={18} className="contact-icon" />
-                        <span>Address goes here, City, Country</span>
+                <div className="footer-links-col">
+                    <h4 className="footer-heading">Company</h4>
+                    <ul className="footer-menu">
+                        <li><Link to="/"><ChevronRight size={14} /> Home</Link></li>
+                        <li><Link to="/about"><ChevronRight size={14} /> About Hydrox Movers</Link></li>
+                        <li><Link to="/booking"><ChevronRight size={14} /> Instant Cost Calculator</Link></li>
+                        <li><Link to="/contact"><ChevronRight size={14} /> Regional Hubs & Contact</Link></li>
+                        <li><Link to="/orders"><ChevronRight size={14} /> Track Order Status</Link></li>
+                    </ul>
+                </div>
+
+                <div className="footer-contact-col">
+                    <h4 className="footer-heading">Headquarters & Dispatch</h4>
+                    <div className="contact-line">
+                        <MapPin size={16} className="c-icon" />
+                        <span>Hydrox Logistics Park, NH 66 Transit Hub, Kochi, Kerala 682024</span>
                     </div>
-                    <div className="contact-item">
-                        <Phone size={18} className="contact-icon" />
-                        <span>+91 9400522686</span>
+                    <div className="contact-line">
+                        <Phone size={16} className="c-icon" />
+                        <span>Toll-Free Dispatch: 1800-HYDROX (493769)<br />Direct Line: +91 94000 00000</span>
                     </div>
-                    <div className="contact-item">
-                        <Mail size={18} className="contact-icon" />
-                        <span>info@hydroxmovers.com</span>
+                    <div className="contact-line">
+                        <Mail size={16} className="c-icon" />
+                        <span>dispatch@hydroxmovers.com</span>
                     </div>
                 </div>
             </div>
-            <div className="footer-bottom">
-                <div className="container">
-                    <p>&copy; 2026 All Rights Reserved. Design by Ameen A.G</p>
+
+            <div className="footer-bottom-bar">
+                <div className="container bottom-content">
+                    <p className="copyright-text">&copy; {new Date().getFullYear()} Hydrox Movers & Logistics Services Ltd. All Rights Reserved.</p>
+                    <div className="footer-legal-links">
+                        <Link to="/about">Privacy Policy</Link>
+                        <span>•</span>
+                        <Link to="/about">Terms of Service</Link>
+                        <span>•</span>
+                        <Link to="/contact">Carrier Disclosures</Link>
+                    </div>
                 </div>
             </div>
         </footer>

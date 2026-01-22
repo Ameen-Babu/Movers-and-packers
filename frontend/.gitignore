@@ -20,5 +20,7 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
+*.tar
 *.sln
+*.zip
 *.sw?

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { User, Mail, Lock, Phone, ShieldCheck, Truck, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const AdminSignup = () => {
@@ -11,6 +12,7 @@ const AdminSignup = () => {
         role: 'admin',
         phone: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
@@ -22,6 +24,7 @@ const AdminSignup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuccess('');
         setLoading(true);
 
         if (formData.password !== formData.confirmPassword) {
@@ -41,77 +44,173 @@ const AdminSignup = () => {
             const data = await response.json();
 
             if (response.ok) {
-                if (data.pending) {
-                    setSuccess('Registration submitted! Please wait for approval from an existing admin.');
-                } else {
-                    localStorage.setItem('user', JSON.stringify(data.user || data));
-                    window.dispatchEvent(new Event('storage'));
-                    window.dispatchEvent(new Event('userLogin'));
-                    navigate('/dashboard');
-                }
+                setSuccess('Admin registration submitted! Account pending SuperAdmin approval.');
+                setTimeout(() => {
+                    navigate('/login');
+                }, 3000);
             } else {
-                setError(data.message || 'Signup failed');
+                setError(data.message || 'Registration failed');
             }
         } catch (err) {
-            setError('Server connection error. Is the backend running?');
+            setError('Server connection error. Is the backend running on port 5000?');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="auth-page">
-            <div className="auth-container">
-                <div className="auth-card signup-card">
-                    <h2>ADMIN SIGNUP</h2>
-                    {error && <div className="auth-error">{error}</div>}
-                    {success && <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '15px', borderRadius: '12px', marginBottom: '20px', textAlign: 'center' }}>{success}</div>}
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label>FULL NAME</label>
-                                <div className="input-wrapper">
-                                    <input name="name" type="text" placeholder="Admin Name" required onChange={handleChange} />
-                                </div>
-                            </div>
+        <div className="auth-page-wrapper">
+            <div className="container auth-content-container">
+                <div className="auth-card-dual">
+                    {/* Left Brand Side */}
+                    <div className="auth-brand-side">
+                        <div className="auth-brand-header">
+                            <span className="auth-brand-name">HYDROX <span className="accent">MOVERS</span></span>
+                            <p className="auth-brand-tagline">STAFF & ADMIN DISPATCH PORTAL</p>
+                        </div>
 
-                            <div className="form-group">
-                                <label>EMAIL</label>
-                                <div className="input-wrapper">
-                                    <input name="email" type="email" placeholder="admin@example.com" required onChange={handleChange} />
+                        <div className="auth-brand-body">
+                            <h2>Admin Command & Operations Control</h2>
+                            <p>Register as an internal staff administrator to claim customer move requests, manage fleet assignments, and issue binding survey invoices.</p>
+                            
+                            <div className="auth-feature-list">
+                                <div className="auth-feat-item">
+                                    <ShieldCheck size={18} className="feat-icon" />
+                                    <span>SuperAdmin Approval & Audit Controls</span>
                                 </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>PHONE</label>
-                                <div className="input-wrapper">
-                                    <input name="phone" type="text" placeholder="1234567890" required onChange={handleChange} />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>PASSWORD</label>
-                                <div className="input-wrapper">
-                                    <input name="password" type="password" placeholder="********" required onChange={handleChange} />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>CONFIRM PASSWORD</label>
-                                <div className="input-wrapper">
-                                    <input name="confirmPassword" type="password" placeholder="********" required onChange={handleChange} />
+                                <div className="auth-feat-item">
+                                    <Truck size={18} className="feat-icon" />
+                                    <span>Live Relocation Dispatch Management</span>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" className="auth-btn" disabled={loading}>
-                            {loading ? 'Processing...' : 'CREATE ADMIN ACCOUNT'}
-                        </button>
-                    </form>
+                        <div className="auth-brand-footer">
+                            <span>Internal Staff Access Only</span>
+                        </div>
+                    </div>
 
-                    <p className="auth-footer">
-                        Already have an account? <Link to="/login">Log In</Link>
-                    </p>
+                    {/* Right Form Side */}
+                    <div className="auth-form-side">
+                        <div className="auth-form-header">
+                            <h2>Admin Registration</h2>
+                            <p>Register for internal administrative dispatch credentials</p>
+                        </div>
+
+                        {error && (
+                            <div className="auth-error-banner">
+                                <AlertCircle size={16} />
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="auth-error-banner" style={{ background: '#ECFDF5', borderColor: '#A7F3D0', color: '#065F46' }}>
+                                <CheckCircle size={16} />
+                                <span>{success}</span>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="auth-form-body">
+                            <div className="form-grid-2">
+                                <div className="form-group-field full-width">
+                                    <label>Admin Officer Name</label>
+                                    <div className="input-icon-wrapper">
+                                        <User size={18} className="input-left-icon" />
+                                        <input 
+                                            name="name" 
+                                            type="text" 
+                                            placeholder="Vikram Nair" 
+                                            value={formData.name}
+                                            required 
+                                            onChange={handleChange} 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group-field full-width">
+                                    <label>Corporate Email</label>
+                                    <div className="input-icon-wrapper">
+                                        <Mail size={18} className="input-left-icon" />
+                                        <input 
+                                            name="email" 
+                                            type="email" 
+                                            placeholder="vikram.admin@hydrox.in" 
+                                            value={formData.email}
+                                            required 
+                                            onChange={handleChange} 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group-field full-width">
+                                    <label>Direct Mobile Phone</label>
+                                    <div className="input-icon-wrapper">
+                                        <Phone size={18} className="input-left-icon" />
+                                        <input 
+                                            name="phone" 
+                                            type="text" 
+                                            placeholder="+91 98450 12345" 
+                                            value={formData.phone}
+                                            required 
+                                            onChange={handleChange} 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group-field">
+                                    <label>Password</label>
+                                    <div className="input-icon-wrapper">
+                                        <Lock size={18} className="input-left-icon" />
+                                        <input 
+                                            name="password" 
+                                            type={showPassword ? 'text' : 'password'} 
+                                            placeholder="••••••••" 
+                                            value={formData.password}
+                                            required 
+                                            onChange={handleChange} 
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn-toggle-password"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="form-group-field">
+                                    <label>Confirm Password</label>
+                                    <div className="input-icon-wrapper">
+                                        <Lock size={18} className="input-left-icon" />
+                                        <input 
+                                            name="confirmPassword" 
+                                            type={showPassword ? 'text' : 'password'} 
+                                            placeholder="••••••••" 
+                                            value={formData.confirmPassword}
+                                            required 
+                                            onChange={handleChange} 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" className="btn-auth-submit" disabled={loading}>
+                                {loading ? 'Submitting Application...' : (
+                                    <>
+                                        Register Admin Account <ArrowRight size={18} />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="auth-form-footer">
+                            <p>
+                                Already registered? <Link to="/login">Sign In to Portal</Link>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

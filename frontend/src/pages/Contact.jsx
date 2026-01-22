@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
         name: '',
+        phone: '',
         email: '',
-        subject: '',
+        subject: 'General Inquiry',
         message: ''
     });
+    const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert('Thank you for contacting us! We will get back to you shortly.');
-        setFormData({ name: '', email: '', subject: '', message: '' });
+        setSubmitted(true);
     };
 
     const handleChange = (e) => {
@@ -20,100 +21,146 @@ const Contact = () => {
     };
 
     return (
-        <div className="contact-page section-padding">
-            <div className="container">
-                <div className="section-header text-center">
-                    <h2>Get In <span className="highlight">Touch</span></h2>
-                    <p>Have questions? We'd love to hear from you.</p>
+        <div className="contact-page-container">
+            {/* Header */}
+            <section className="contact-hero section-padding bg-dark-slate">
+                <div className="container text-center text-white">
+                    <span className="sub-title text-amber">COMMUNICATION & BRANCHES</span>
+                    <h1 className="hero-title text-white">Get in Touch With Dispatch HQ</h1>
+                    <p className="head-desc text-slate-300 max-w-700">
+                        Our logistics dispatch team is available 24/7 to assist with quotes, order tracking, and emergency moving support.
+                    </p>
                 </div>
+            </section>
 
-                <div className="contact-grid">
-                    <div className="contact-info glass-card">
-                        <h3>Contact Information</h3>
+            <section className="contact-main-section section-padding">
+                <div className="container">
+                    <div className="contact-grid-2">
+                        {/* Contact Info Side */}
+                        <div className="contact-info-panel">
+                            <h3>Regional Hubs & Hotlines</h3>
+                            <p className="info-intro">For urgent booking changes or live fleet status, contact our dispatch desks directly.</p>
 
-                        <div className="info-item">
-                            <div className="icon"><Phone size={20} /></div>
-                            <div className="info-text">
-                                <h5>Phone</h5>
-                                <p>+91 9400522686</p>
-                                <p>+91 9446001234</p>
+                            <div className="contact-card-item">
+                                <div className="c-icon-box"><Phone size={20} /></div>
+                                <div>
+                                    <h5>Toll-Free Dispatch</h5>
+                                    <p className="contact-highlight">1800-HYDROX (493769)</p>
+                                    <p className="contact-sub">+91 94000 00000 | +91 94460 01234</p>
+                                </div>
+                            </div>
+
+                            <div className="contact-card-item">
+                                <div className="c-icon-box"><Mail size={20} /></div>
+                                <div>
+                                    <h5>Official Email Inquiry</h5>
+                                    <p className="contact-highlight">dispatch@hydroxmovers.com</p>
+                                    <p className="contact-sub">support@hydroxmovers.com</p>
+                                </div>
+                            </div>
+
+                            <div className="contact-card-item">
+                                <div className="c-icon-box"><MapPin size={20} /></div>
+                                <div>
+                                    <h5>Central Dispatch Headquarters</h5>
+                                    <p className="contact-highlight">Hydrox Logistics Park, NH 66 Transit Hub</p>
+                                    <p className="contact-sub">Kochi, Kerala 682024, India</p>
+                                </div>
+                            </div>
+
+                            <div className="contact-card-item">
+                                <div className="c-icon-box"><Clock size={20} /></div>
+                                <div>
+                                    <h5>Operational Hours</h5>
+                                    <p className="contact-highlight">24/7 Customer & Fleet Support</p>
+                                    <p className="contact-sub">Office Survey Hours: 8:00 AM - 8:00 PM</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="info-item">
-                            <div className="icon"><Mail size={20} /></div>
-                            <div className="info-text">
-                                <h5>Email</h5>
-                                <p>info@hydroxmovers.com</p>
-                                <p>support@hydroxmovers.com</p>
-                            </div>
-                        </div>
+                        {/* Form Side */}
+                        <div className="contact-form-panel">
+                            {submitted ? (
+                                <div className="contact-success-box">
+                                    <CheckCircle2 size={48} className="success-icon" />
+                                    <h3>Message Received</h3>
+                                    <p>Thank you for reaching out to Hydrox Movers. A logistics manager will contact you within 30 minutes.</p>
+                                    <button className="btn-primary" onClick={() => setSubmitted(false)}>Send Another Inquiry</button>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleSubmit} className="corporate-contact-form">
+                                    <h3>Submit a Direct Inquiry</h3>
+                                    <p className="form-subtext">Fill in the fields below for corporate moving proposals, partnership inquiries, or general questions.</p>
 
-                        <div className="info-item">
-                            <div className="icon"><MapPin size={20} /></div>
-                            <div className="info-text">
-                                <h5>Office</h5>
-                                <p>123 Moving Street, Logistics Park<br />Kerala, India 673001</p>
-                            </div>
+                                    <div className="form-row-2">
+                                        <div className="form-group-block">
+                                            <label>Full Name *</label>
+                                            <input 
+                                                type="text" 
+                                                name="name" 
+                                                value={formData.name} 
+                                                onChange={handleChange}
+                                                required 
+                                                placeholder="e.g. Rahul Sharma" 
+                                            />
+                                        </div>
+                                        <div className="form-group-block">
+                                            <label>Phone Number *</label>
+                                            <input 
+                                                type="tel" 
+                                                name="phone" 
+                                                value={formData.phone} 
+                                                onChange={handleChange}
+                                                required 
+                                                placeholder="+91 98765 43210" 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row-2">
+                                        <div className="form-group-block">
+                                            <label>Email Address *</label>
+                                            <input 
+                                                type="email" 
+                                                name="email" 
+                                                value={formData.email} 
+                                                onChange={handleChange}
+                                                required 
+                                                placeholder="name@example.com" 
+                                            />
+                                        </div>
+                                        <div className="form-group-block">
+                                            <label>Subject</label>
+                                            <select name="subject" value={formData.subject} onChange={handleChange}>
+                                                <option value="General Inquiry">General Inquiry</option>
+                                                <option value="Residential Moving">Residential Moving</option>
+                                                <option value="Corporate Shift">Corporate / Office Shift</option>
+                                                <option value="Carrier Partnership">Carrier Partnership</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group-block">
+                                        <label>Message / Relocation Details *</label>
+                                        <textarea 
+                                            name="message" 
+                                            value={formData.message} 
+                                            onChange={handleChange}
+                                            required 
+                                            rows="5"
+                                            placeholder="Provide details about your move origin, destination, and dates..."
+                                        ></textarea>
+                                    </div>
+
+                                    <button type="submit" className="btn-primary-block">
+                                        Submit Inquiry <Send size={16} />
+                                    </button>
+                                </form>
+                            )}
                         </div>
                     </div>
-
-                    <div className="contact-form-container glass-card">
-                        <div className="form-header">
-                            <h3>Send Message</h3>
-                        </div>
-                        <form onSubmit={handleSubmit} className="contact-form">
-                            <div className="form-group">
-                                <label>Your Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Name Here"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Email Address</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="test@example.com"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Subject</label>
-                                <input
-                                    type="text"
-                                    name="subject"
-                                    value={formData.subject}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Inquiry about..."
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Message</label>
-                                <textarea
-                                    name="message"
-                                    value={formData.message}
-                                    onChange={handleChange}
-                                    required
-                                    rows="4"
-                                    placeholder="How can we help you?"
-                                ></textarea>
-                            </div>
-                            <button type="submit" className="btn-primary">
-                                Send Message <Send size={18} />
-                            </button>
-                        </form>
-                    </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 };

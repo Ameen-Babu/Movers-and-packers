@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Truck, UserCheck, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -8,8 +8,10 @@ const Login = () => {
         email: '',
         password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState('client'); 
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,64 +33,150 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('user', JSON.stringify(data.user || data));
-                // Dispatch both to cover same-window and multi-tab sync
+                const userObj = data.user || data;
+                localStorage.setItem('user', JSON.stringify(userObj));
                 window.dispatchEvent(new Event('storage'));
                 window.dispatchEvent(new Event('userLogin'));
-                navigate('/');
+
+                const role = userObj.role?.toLowerCase();
+                if (['admin', 'superadmin'].includes(role)) {
+                    navigate('/dashboard');
+                } else {
+                    navigate('/');
+                }
             } else {
-                setError(data.message || 'Login failed');
+                setError(data.message || 'Login failed. Please check your email and password.');
             }
         } catch (err) {
-            setError('Server connection error. Is the backend running?');
+            setError('Server connection error. Is the backend running on port 5000?');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="auth-page">
-            <div className="auth-container">
-                <div className="auth-card">
-                    <h2>LOG IN</h2>
-                    {error && <div className="auth-error">{error}</div>}
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label>EMAIL</label>
-                            <div className="input-wrapper">
-                                <input
-                                    name="email"
-                                    type="email"
-                                    placeholder="enter your email"
-                                    required
-                                    onChange={handleChange}
-                                />
+        <div className="auth-page-wrapper">
+            <div className="container auth-content-container">
+                <div className="auth-card-dual">
+                    {/* Left Brand & Context Banner */}
+                    <div className="auth-brand-side">
+                        <div className="auth-brand-header">
+                            <span className="auth-brand-name">HYDROX <span className="accent">MOVERS</span></span>
+                            <p className="auth-brand-tagline">LOGISTICS & RELOCATION PORTAL</p>
+                        </div>
+
+                        <div className="auth-brand-body">
+                            <h2>Manage Your Relocations With Confidence</h2>
+                            <p>Access your live dispatch tracking, itemized quotes, and verified carrier reports in one place.</p>
+                            
+                            <div className="auth-feature-list">
+                                <div className="auth-feat-item">
+                                    <ShieldCheck size={18} className="feat-icon" />
+                                    <span>Fixed Contract Quotations & Insurance</span>
+                                </div>
+                                <div className="auth-feat-item">
+                                    <Truck size={18} className="feat-icon" />
+                                    <span>Real-Time GPS Vehicle Tracking</span>
+                                </div>
+                                <div className="auth-feat-item">
+                                    <UserCheck size={18} className="feat-icon" />
+                                    <span>Background Checked Certified Staff</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label>PASSWORD</label>
-                            <div className="input-wrapper">
-                                <input
-                                    name="password"
-                                    type="password"
-                                    placeholder="enter your password"
-                                    required
-                                    onChange={handleChange}
-                                />
-                            </div>
+                        <div className="auth-brand-footer">
+                        </div>
+                    </div>
+
+                    {/* Right Form Card */}
+                    <div className="auth-form-side">
+                        <div className="auth-form-header">
+                            <h2>Sign In</h2>
+                            <p>Enter your credentials to access your account</p>
                         </div>
 
-                        <button type="submit" className="auth-btn" disabled={loading}>
-                            {loading ? 'Logging in...' : 'LOGIN'}
-                        </button>
-                    </form>
+                        {/* Quick Role Tab Switcher */}
+                        <div className="auth-role-tabs">
+                            <button 
+                                type="button" 
+                                className={`role-tab-btn ${activeTab === 'client' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('client')}
+                            >
+                                Login
+                            </button>
+                            <button 
+                                type="button" 
+                                className={`role-tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('admin')}
+                            >
+                                Admin Portal
+                            </button>
+                        </div>
 
+                        {error && (
+                            <div className="auth-error-banner">
+                                <AlertCircle size={16} />
+                                <span>{error}</span>
+                            </div>
+                        )}
 
+                        <form onSubmit={handleSubmit} className="auth-form-body">
+                            <div className="form-group-field">
+                                <label>Email Address</label>
+                                <div className="input-icon-wrapper">
+                                    <Mail size={18} className="input-left-icon" />
+                                    <input
+                                        name="email"
+                                        type="email"
+                                        placeholder="your.email@example.com"
+                                        value={formData.email}
+                                        required
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
 
-                    <p className="auth-footer">
-                        Don't have an account? <Link to="/signup">Sign Up</Link>
-                    </p>
+                            <div className="form-group-field">
+                                <div className="label-with-link">
+                                    <label>Password</label>
+                                </div>
+                                <div className="input-icon-wrapper">
+                                    <Lock size={18} className="input-left-icon" />
+                                    <input
+                                        name="password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        required
+                                        onChange={handleChange}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn-toggle-password"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        aria-label="Toggle password visibility"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" className="btn-auth-submit" disabled={loading}>
+                                {loading ? 'Authenticating...' : (
+                                    <>
+                                        Sign In <ArrowRight size={18} />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="auth-form-footer">
+                            <p>
+                                Don't have an account? <Link to="/signup">Create Client Account</Link>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
