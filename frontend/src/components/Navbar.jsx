@@ -1,7 +1,7 @@
 // main nav
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, User, ChevronDown, Settings } from 'lucide-react';
+import { Menu, X, LogOut, User, ChevronDown, Settings, Truck } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
@@ -121,24 +121,44 @@ const Navbar = () => {
                       >
                         <User size={16} /> Profile
                       </Link>
-                      <Link
-                        to={user.role?.trim().toLowerCase() === 'admin' ? "/dashboard" : "/orders"}
-                        className="profile-menu-item"
-                        onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
-                        style={{
-                          padding: '10px 15px',
-                          borderRadius: '10px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          fontSize: '14px',
-                          color: 'var(--secondary)',
-                          transition: 'background 0.2s'
-                        }}
-                      >
-                        <Settings size={16} />
-                        {user.role?.trim().toLowerCase() === 'admin' ? 'Dashboard' : 'Orders'}
-                      </Link>
+                      {['client', 'provider'].includes(user.role?.trim().toLowerCase()) && (
+                        <Link
+                          to="/orders"
+                          className="profile-menu-item"
+                          onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
+                          style={{
+                            padding: '10px 15px',
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            fontSize: '14px',
+                            color: 'var(--secondary)',
+                            transition: 'background 0.2s'
+                          }}
+                        >
+                          <Truck size={16} /> Orders
+                        </Link>
+                      )}
+                      {['admin', 'provider'].includes(user.role?.trim().toLowerCase()) && (
+                        <Link
+                          to="/dashboard"
+                          className="profile-menu-item"
+                          onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
+                          style={{
+                            padding: '10px 15px',
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            fontSize: '14px',
+                            color: 'var(--secondary)',
+                            transition: 'background 0.2s'
+                          }}
+                        >
+                          <Settings size={16} /> Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="profile-menu-item"

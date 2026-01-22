@@ -29,7 +29,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<AdminSignup />} />
             <Route path="/booking" element={<Booking />} />
-            <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'provider']}><Dashboard /></ProtectedRoute>} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/profile" element={<Profile />} />
             {/* Fallback to home */}

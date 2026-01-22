@@ -41,8 +41,12 @@ const getServiceRequests = async (req, res) => {
             const client = await Client.findOne({ userId: req.user._id });
             requests = await ServiceRequest.find({ clientId: client._id });
         } else if (req.user.role === 'provider') {
-            const provider = await Provider.findOne({ userId: req.user._id });
-            requests = await ServiceRequest.find({ providerId: provider._id });
+            if (req.query.view === 'all') {
+                requests = await ServiceRequest.find({});
+            } else {
+                const provider = await Provider.findOne({ userId: req.user._id });
+                requests = await ServiceRequest.find({ providerId: provider._id });
+            }
         } else if (req.user.role === 'admin') {
             requests = await ServiceRequest.find({});
         }

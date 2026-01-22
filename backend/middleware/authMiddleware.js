@@ -37,4 +37,13 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, admin };
+// admin or provider check
+const adminOrProvider = (req, res, next) => {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'provider')) {
+        next();
+    } else {
+        res.status(401).json({ message: 'Not authorized as admin or provider' });
+    }
+};
+
+module.exports = { protect, admin, adminOrProvider };

@@ -26,7 +26,8 @@ const Dashboard = () => {
 
             try {
                 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-                const response = await fetch(`${apiBaseUrl}/services`, {
+                // Fetch all requests for dashboard view (for admin and provider)
+                const response = await fetch(`${apiBaseUrl}/services?view=all`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
 
@@ -194,27 +195,31 @@ const Dashboard = () => {
             <div className="container">
                 <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <div>
-                        {userRole?.toLowerCase() === 'admin' ? (
-                            <h2>Admin <span className="highlight">Dashboard</span></h2>
+                        {['admin', 'provider'].includes(userRole?.toLowerCase()) ? (
+                            <h2 style={{ textTransform: 'capitalize' }}>{userRole} <span className="highlight">Dashboard</span></h2>
                         ) : (
                             <h2>Your <span className="highlight">Orders</span></h2>
                         )}
-                        <p>{userRole?.toLowerCase() === 'admin' ? 'Manage platform activity and users' : 'Track your active moves and past requests'}</p>
+                        <p>{['admin', 'provider'].includes(userRole?.toLowerCase()) ? 'Manage platform activity and orders' : 'Track your active moves and past requests'}</p>
                     </div>
                     <span className="user-role-badge" style={{ background: 'var(--primary)', color: 'var(--white)', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
                         {userRole || 'User'} Mode
                     </span>
                 </div>
 
-                {userRole?.toLowerCase() === 'admin' && (
+                {['admin', 'provider'].includes(userRole?.toLowerCase()) && (
                     <div className="admin-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
                         <button className={`btn-outline-sm ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>Orders</button>
-                        <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Customers</button>
-                        <button className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')} style={{ position: 'relative' }}>
-                            Pending Admins
-                            {pendingAdmins.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff4d4d', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingAdmins.length}</span>}
-                        </button>
-                        <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Dashboard</button>
+                        {userRole?.toLowerCase() === 'admin' && (
+                            <>
+                                <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Customers</button>
+                                <button className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')} style={{ position: 'relative' }}>
+                                    Pending Admins
+                                    {pendingAdmins.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff4d4d', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingAdmins.length}</span>}
+                                </button>
+                                <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Dashboard</button>
+                            </>
+                        )}
                     </div>
                 )}
 

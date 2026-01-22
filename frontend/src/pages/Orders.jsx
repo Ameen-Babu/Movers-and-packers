@@ -8,6 +8,7 @@ const Orders = () => {
     const [error, setError] = useState('');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -147,7 +148,7 @@ const Orders = () => {
                                 <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                                     <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
 
-                                    {(req.status === 'pending' || req.status === 'accepted') && (
+                                    {(user.role === 'client' && (req.status === 'pending' || req.status === 'accepted')) && (
                                         <button
                                             className="btn-outline-sm"
                                             style={{ borderRadius: '50px', padding: '8px 20px', marginLeft: 'auto' }}

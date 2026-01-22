@@ -23,17 +23,17 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'Please add all required base fields' });
         }
 
-        // Check if user exists
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Hash password
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create base User - admins need approval
+
         const user = await User.create({
             name,
             email,
@@ -43,7 +43,7 @@ const registerUser = async (req, res) => {
             isApproved: role === 'admin' ? false : true,
         });
 
-        // Create specific profile based on role
+
         if (role === 'client') {
             if (!address || !city || !pincode) {
                 await User.findByIdAndDelete(user._id);
@@ -101,7 +101,7 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.passwordHash))) {
-        // Block unapproved admins
+
         if (user.role === 'admin' && !user.isApproved) {
             return res.status(403).json({ message: 'Your admin account is pending approval' });
         }
@@ -159,7 +159,6 @@ const updateProfile = async (req, res) => {
 
         const { name, phone, address, city, pincode, companyName, licenseNo } = req.body;
 
-        // Update User base fields
         user.name = name || user.name;
         user.phone = phone || user.phone;
         await user.save();
