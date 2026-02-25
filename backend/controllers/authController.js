@@ -195,8 +195,52 @@ const updateProfile = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+        const user = await User.findById(req.user._id);
+        const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+        user.passwordHash = await bcrypt.hash(newPassword, 10);
+        await user.save();
+        res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const changeEmail = async (req, res) => {
+    try {
+        const { newEmail, password } = req.body;
+        if (!newEmail || !password) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+        const user = await User.findById(req.user._id);
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Password is incorrect' });
+        }
+        const emailTaken = await User.findOne({ email: newEmail });
+        if (emailTaken) {
+            return res.status(400).json({ message: 'Email is already in use' });
+        }
+        user.email = newEmail;
+        await user.save();
+        res.json({ message: 'Email updated successfully', email: user.email });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     getMe,
+    changePassword,
+    changeEmail,
 };
