@@ -13,7 +13,7 @@ const Home = () => {
                     <h1>From Your Country to <span className="highlight">22+ Countries</span></h1>
                     <p>You can send fast, high quality and reasonable prices with Hydrox Movers.</p>
                     <div className="hero-btns">
-                        <button className="btn-primary" onClick={() => navigate('/booking')}>Calculate Price</button>
+                        <button className="btn-primary" onClick={() => navigate('/booking')}>Book Service</button>
                         <button className="btn-outline-white">Learn More</button>
                     </div>
                 </div>
