@@ -1,7 +1,8 @@
-// service logic
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
 const Provider = require('../models/Provider');
+const User = require('../models/User');
+const { sendOrderCreatedEmail, sendOrderCancelledEmail } = require('../utils/emailService');
 
 
 
@@ -27,6 +28,12 @@ const createServiceRequest = async (req, res) => {
             weight,
             estimatedPrice,
         });
+
+        const clientUser = await User.findById(req.user._id);
+        if (clientUser) {
+            sendOrderCreatedEmail({ to: clientUser.email, name: clientUser.name, order: request })
+                .catch((err) => console.error('Order created email failed:', err.message));
+        }
 
         res.status(201).json(request);
     } catch (error) {
@@ -100,6 +107,12 @@ const updateServiceStatus = async (req, res) => {
             }
 
             request.status = 'cancelled';
+
+            const clientUser = await User.findById(req.user._id);
+            if (clientUser) {
+                sendOrderCancelledEmail({ to: clientUser.email, name: clientUser.name, order: request })
+                    .catch((err) => console.error('Order cancelled email failed:', err.message));
+            }
         } else {
             return res.status(403).json({ message: 'Not authorized to update status' });
         }

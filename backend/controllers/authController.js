@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Client = require('../models/Client');
 const Provider = require('../models/Provider');
+const { sendWelcomeEmail } = require('../utils/emailService');
 
 
 const generateToken = (id) => {
@@ -72,6 +73,9 @@ const registerUser = async (req, res) => {
         }
 
         if (user) {
+            sendWelcomeEmail({ to: user.email, name: user.name, role: user.role })
+                .catch((err) => console.error('Welcome email failed:', err.message));
+
             if (role === 'admin') {
                 res.status(201).json({
                     message: 'Admin registration submitted. Please wait for approval from an existing admin.',
