@@ -5,6 +5,7 @@ const {
     createServiceRequest,
     getServiceRequests,
     getServiceRequestById,
+    claimServiceRequest,
     updateServiceStatus,
     deleteServiceRequest
 } = require('../controllers/serviceController');
@@ -18,4 +19,7 @@ router.route('/:id')
     .patch(protect, updateServiceStatus)
     .delete(protect, deleteServiceRequest);
 
+router.post('/:id/claim', protect, claimServiceRequest);
+
 module.exports = router;
+

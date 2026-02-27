@@ -1,4 +1,3 @@
-// payment logic
 const Payment = require('../models/Payment');
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
@@ -13,8 +12,6 @@ const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
     key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder'
 });
-
-// new order
 const createOrder = async (req, res) => {
     try {
         const { requestId } = req.body;
@@ -79,8 +76,7 @@ const verifyPayment = async (req, res) => {
                 transactionId: razorpay_payment_id,
                 paymentStatus: 'completed'
             });
-
-            serviceReq.status = 'accepted';
+            serviceReq.paymentStatus = 'paid';
             await serviceReq.save();
 
             console.log('Payment Verified and Saved successfully');

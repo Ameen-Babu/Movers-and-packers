@@ -1,6 +1,6 @@
 // user orders
 import React, { useState, useEffect } from 'react';
-import { Truck, Clock, CheckCircle, AlertCircle, Star } from 'lucide-react';
+import { Truck, Clock, CheckCircle, AlertCircle, Star, Tag } from 'lucide-react';
 
 const Orders = () => {
     const [requests, setRequests] = useState([]);
@@ -52,13 +52,16 @@ const Orders = () => {
         if (status === 'accepted') return <CheckCircle className="status-icon accepted" />;
         if (status === 'completed') return <CheckCircle className="status-icon completed" />;
         if (status === 'pending') return <Clock className="status-icon pending" />;
+        if (status === 'claimed') return <Tag className="status-icon claimed" />;
         return <AlertCircle className="status-icon" />;
     };
 
     const getStatusLabel = (status) => {
-        if (status === 'accepted') return 'PAID & VERIFIED';
+        if (status === 'pending') return 'NEW ORDER';
+        if (status === 'claimed') return 'ASSIGNED';
+        if (status === 'accepted') return 'CONFIRMED';
         if (status === 'completed') return 'COMPLETED';
-        if (status === 'pending') return 'PAYMENT PENDING';
+        if (status === 'cancelled') return 'CANCELLED';
         return status.toUpperCase();
     };
 
@@ -87,6 +90,28 @@ const Orders = () => {
         }
     };
 
+    const handleClaimOrder = async (id) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${apiBaseUrl}/services/${id}/claim`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (res.ok) {
+                // Remove from unclaimed list since it's now claimed
+                setRequests(requests.filter(r => r._id !== id));
+                setIsModalOpen(false);
+                alert('Order claimed successfully! Find it in your Dashboard → Claimed Orders.');
+            } else {
+                const data = await res.json();
+                alert(data.message || 'Failed to claim order');
+            }
+        } catch (err) {
+            alert('Failed to claim order');
+        }
+    };
+
     const openDetails = (req) => {
         setSelectedRequest(req);
         setIsModalOpen(true);
@@ -97,9 +122,23 @@ const Orders = () => {
             <div className="container">
                 <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <div>
-                        <h2>Your <span className="highlight">Orders</span></h2>
-                        <p>Track your active moves and past requests</p>
+                        {user?.role === 'admin' ? (
+                            <>
+                                <h2>Unclaimed <span className="highlight">Orders</span></h2>
+                                <p>Browse and claim pending orders to manage them</p>
+                            </>
+                        ) : (
+                            <>
+                                <h2>Your <span className="highlight">Orders</span></h2>
+                                <p>Track your active moves and past requests</p>
+                            </>
+                        )}
                     </div>
+                    {user?.role === 'admin' && (
+                        <span style={{ background: 'var(--primary)', color: 'var(--white)', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                            {requests.length} Unclaimed
+                        </span>
+                    )}
                 </div>
 
                 {loading ? (
@@ -111,9 +150,17 @@ const Orders = () => {
                         <div style={{ background: 'var(--bg-light)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
                             <Truck size={40} color="var(--primary)" />
                         </div>
-                        <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>No orders found</h3>
-                        <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>You haven't booked any moves yet. Start your journey with us by booking your first professional move today.</p>
-                        <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.href = '/booking'}>Book Your First Move</button>
+                        <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>
+                            {user?.role === 'admin' ? 'No unclaimed orders' : 'No orders found'}
+                        </h3>
+                        <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>
+                            {user?.role === 'admin'
+                                ? 'All orders have been claimed. Check back later for new bookings.'
+                                : "You haven't booked any moves yet. Start your journey with us by booking your first professional move today."}
+                        </p>
+                        {user?.role !== 'admin' && (
+                            <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.href = '/booking'}>Book Your First Move</button>
+                        )}
                     </div>
                 ) : (
                     <div className="requests-grid">
@@ -148,14 +195,25 @@ const Orders = () => {
                                 <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                                     <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
 
-                                    {(user.role === 'client' && (req.status === 'pending' || req.status === 'accepted')) && (
+                                    {/* Admin: Claim button for unclaimed orders */}
+                                    {user?.role === 'admin' && !req.claimedBy && (
+                                        <button
+                                            className="btn-primary-sm"
+                                            style={{ borderRadius: '50px', padding: '8px 20px', marginLeft: 'auto' }}
+                                            onClick={() => handleClaimOrder(req._id)}
+                                        >
+                                            Claim Order
+                                        </button>
+                                    )}
+
+                                    {(user?.role === 'client' && (req.status === 'pending' || req.status === 'accepted')) && (
                                         <button
                                             className="btn-outline-sm"
                                             style={{ borderRadius: '50px', padding: '8px 20px', marginLeft: 'auto' }}
                                             onClick={() => handleCancelRequest(req._id)}
                                         >Cancel Order</button>
                                     )}
-                                    {req.status === 'completed' && <button className="btn-primary-sm" style={{ borderRadius: '50px' }}>Review <Star size={14} /></button>}
+                                    {req.status === 'completed' && user?.role !== 'admin' && <button className="btn-primary-sm" style={{ borderRadius: '50px' }}>Review <Star size={14} /></button>}
                                 </div>
                             </div>
                         ))}
@@ -203,7 +261,21 @@ const Orders = () => {
                             </div>
 
                             <div className="status-management" style={{ borderTop: '2px solid var(--bg-light)', paddingTop: '30px' }}>
-                                {(selectedRequest.status === 'pending' || selectedRequest.status === 'accepted') && (
+                                {/* Admin: show Claim button in modal for unclaimed orders (no status controls yet) */}
+                                {user?.role === 'admin' && !selectedRequest.claimedBy && (
+                                    <div style={{ textAlign: 'center' }}>
+                                        <button
+                                            className="btn-primary"
+                                            style={{ borderRadius: '50px', width: '100%', padding: '15px' }}
+                                            onClick={() => handleClaimOrder(selectedRequest._id)}
+                                        >
+                                            Claim This Order
+                                        </button>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '10px' }}>Claiming this order lets you manage its status from your dashboard.</p>
+                                    </div>
+                                )}
+
+                                {(selectedRequest.status === 'pending' || selectedRequest.status === 'accepted' || selectedRequest.status === 'claimed') && user?.role === 'client' && (
                                     <div style={{ textAlign: 'center' }}>
                                         <button
                                             className="btn-outline"

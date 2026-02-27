@@ -55,7 +55,17 @@ const getServiceRequests = async (req, res) => {
                 requests = await ServiceRequest.find({ providerId: provider._id });
             }
         } else if (req.user.role === 'admin') {
-            requests = await ServiceRequest.find({});
+            if (req.query.view === 'claimed') {
+                requests = await ServiceRequest.find({ claimedBy: req.user._id })
+                    .populate('claimedBy', 'name');
+            } else if (req.query.view === 'pending') {
+                requests = await ServiceRequest.find({
+                    claimedBy: null,
+                    status: 'pending'
+                });
+            } else {
+                requests = await ServiceRequest.find({});
+            }
         }
 
         res.status(200).json(requests);
@@ -80,6 +90,31 @@ const getServiceRequestById = async (req, res) => {
     }
 };
 
+const claimServiceRequest = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Only admins can claim orders' });
+        }
+
+        const request = await ServiceRequest.findById(req.params.id);
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        if (request.claimedBy) {
+            return res.status(400).json({ message: 'This order has already been claimed' });
+        }
+
+        request.claimedBy = req.user._id;
+        request.status = 'claimed';
+        await request.save();
+
+        res.status(200).json(request);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 const updateServiceStatus = async (req, res) => {
     try {
         const { status } = req.body;
@@ -90,6 +125,9 @@ const updateServiceStatus = async (req, res) => {
         }
 
         if (req.user.role === 'admin') {
+            if (request.claimedBy && request.claimedBy.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ message: 'Only the admin who claimed this order can update its status' });
+            }
             request.status = status;
         } else if (req.user.role === 'client') {
             const client = await Client.findOne({ userId: req.user._id });
@@ -102,8 +140,8 @@ const updateServiceStatus = async (req, res) => {
                 return res.status(400).json({ message: 'Clients can only cancel requests' });
             }
 
-            if (request.status !== 'pending' && request.status !== 'accepted') {
-                return res.status(400).json({ message: 'Only pending or accepted requests can be cancelled' });
+            if (request.status !== 'pending' && request.status !== 'accepted' && request.status !== 'claimed') {
+                return res.status(400).json({ message: 'Only pending, claimed or accepted requests can be cancelled' });
             }
 
             request.status = 'cancelled';
@@ -143,6 +181,7 @@ module.exports = {
     createServiceRequest,
     getServiceRequests,
     getServiceRequestById,
+    claimServiceRequest,
     updateServiceStatus,
     deleteServiceRequest
 };

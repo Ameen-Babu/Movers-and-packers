@@ -28,8 +28,13 @@ const serviceRequestSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'completed', 'cancelled'],
+        enum: ['pending', 'claimed', 'accepted', 'completed', 'cancelled'],
         default: 'pending',
+    },
+    claimedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
     },
     estimatedPrice: {
         type: Number,
@@ -39,6 +44,11 @@ const serviceRequestSchema = new mongoose.Schema({
     },
     finalPrice: {
         type: Number,
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['unpaid', 'paid', 'refunded'],
+        default: 'unpaid',
     }
 }, {
     timestamps: true,
