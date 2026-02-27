@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     isApproved: {
         type: Boolean,
         default: true,
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
     }
 }, {
     timestamps: true,
