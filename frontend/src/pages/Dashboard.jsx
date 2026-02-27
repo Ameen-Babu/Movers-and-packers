@@ -1,9 +1,10 @@
-// user dashboard
 import React, { useState, useEffect } from 'react';
-import { Truck, Clock, CheckCircle, AlertCircle, Star } from 'lucide-react';
+import { Truck, Clock, CheckCircle, AlertCircle, Star, Tag } from 'lucide-react';
 
 const Dashboard = () => {
     const [requests, setRequests] = useState([]);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [claimedRequests, setClaimedRequests] = useState([]);
     const [users, setUsers] = useState([]);
     const [pendingAdmins, setPendingAdmins] = useState([]);
     const [stats, setStats] = useState(null);
@@ -13,6 +14,8 @@ const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('requests');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const currentUser = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -26,8 +29,7 @@ const Dashboard = () => {
 
             try {
                 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-                // Fetch all requests for dashboard view (for admin and provider)
-                const response = await fetch(`${apiBaseUrl}/services?view=all`, {
+                const response = await fetch(`${apiBaseUrl}/services`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
 
@@ -46,6 +48,11 @@ const Dashboard = () => {
                 }
 
                 if (user.role?.toLowerCase() === 'admin') {
+                    const pendingRes = await fetch(`${apiBaseUrl}/services?view=pending`, {
+                        headers: { 'Authorization': `Bearer ${user.token}` }
+                    });
+                    if (pendingRes.ok) setPendingRequests(await pendingRes.json());
+
                     const statsRes = await fetch(`${apiBaseUrl}/admin/stats`, {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
@@ -56,10 +63,14 @@ const Dashboard = () => {
                     });
                     if (usersRes.ok) setUsers(await usersRes.json());
 
-                    const pendingRes = await fetch(`${apiBaseUrl}/admin/pending-admins`, {
+                    const adminPendingRes = await fetch(`${apiBaseUrl}/admin/pending-admins`, {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
-                    if (pendingRes.ok) setPendingAdmins(await pendingRes.json());
+                    if (adminPendingRes.ok) setPendingAdmins(await adminPendingRes.json());
+                    const claimedRes = await fetch(`${apiBaseUrl}/services?view=claimed`, {
+                        headers: { 'Authorization': `Bearer ${user.token}` }
+                    });
+                    if (claimedRes.ok) setClaimedRequests(await claimedRes.json());
                 }
             } catch (err) {
                 setError('Connection error');
@@ -75,13 +86,16 @@ const Dashboard = () => {
         if (status === 'accepted') return <CheckCircle className="status-icon accepted" />;
         if (status === 'completed') return <CheckCircle className="status-icon completed" />;
         if (status === 'pending') return <Clock className="status-icon pending" />;
+        if (status === 'claimed') return <Tag className="status-icon claimed" />;
         return <AlertCircle className="status-icon" />;
     };
 
     const getStatusLabel = (status) => {
-        if (status === 'accepted') return 'PAID & VERIFIED';
+        if (status === 'pending') return 'NEW ORDER';
+        if (status === 'claimed') return 'ASSIGNED';
+        if (status === 'accepted') return 'CONFIRMED';
         if (status === 'completed') return 'COMPLETED';
-        if (status === 'pending') return 'PAYMENT PENDING';
+        if (status === 'cancelled') return 'CANCELLED';
         return status.toUpperCase();
     };
 
@@ -114,6 +128,7 @@ const Dashboard = () => {
             });
             if (res.ok) {
                 setRequests(requests.filter(r => r._id !== id));
+                setClaimedRequests(claimedRequests.filter(r => r._id !== id));
                 setIsModalOpen(false);
                 alert('Request deleted');
             }
@@ -142,8 +157,12 @@ const Dashboard = () => {
             if (res.ok) {
                 const updated = await res.json();
                 setRequests(requests.map(r => r._id === id ? updated : r));
+                setClaimedRequests(claimedRequests.map(r => r._id === id ? updated : r));
                 setSelectedRequest(updated);
                 alert('Status updated to ' + newStatus);
+            } else {
+                const data = await res.json();
+                alert(data.message || 'Update failed');
             }
         } catch (err) {
             alert('Update failed');
@@ -189,6 +208,85 @@ const Dashboard = () => {
             alert('Rejection failed');
         }
     };
+    const isClaimedByMe = (req) => {
+        if (!req.claimedBy || !currentUser) return false;
+        const claimedById = typeof req.claimedBy === 'object' ? req.claimedBy._id || req.claimedBy : req.claimedBy;
+        return claimedById.toString() === currentUser.id?.toString();
+    };
+
+    const handleClaimOrder = async (id) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${apiBaseUrl}/services/${id}/claim`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                setRequests(requests.map(r => r._id === id ? updated : r));
+                setPendingRequests(pendingRequests.filter(r => r._id !== id));
+                setClaimedRequests(prev => [...prev, updated]);
+                setSelectedRequest(updated);
+                alert('Order claimed! You can manage it in the Claimed Orders tab.');
+            } else {
+                const data = await res.json();
+                alert(data.message || 'Failed to claim order');
+            }
+        } catch (err) {
+            alert('Failed to claim order');
+        }
+    };
+
+    const renderRequestCard = (req, showStatusControls = false) => (
+        <div key={req._id} className="request-card glass-card">
+            <div className="card-top">
+                {getStatusIcon(req.status)}
+                <span className={`status-badge ${req.status}`}>{getStatusLabel(req.status)}</span>
+            </div>
+
+            <div className="card-body">
+                <div className="info-item">
+                    <small>FROM</small>
+                    <p>{req.pickupLocation}</p>
+                </div>
+                <div className="info-item">
+                    <small>TO</small>
+                    <p>{req.dropoffLocation}</p>
+                </div>
+                <div className="info-split">
+                    <div className="info-item">
+                        <small>DATE</small>
+                        <p>{new Date(req.movingDate).toLocaleDateString()}</p>
+                    </div>
+                    <div className="info-item">
+                        <small>PRICE</small>
+                        <p>₹{req.estimatedPrice}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
+
+                {userRole === 'admin' && (
+                    <button
+                        className="btn-outline"
+                        style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '8px 25px', fontSize: '0.9rem', marginLeft: 'auto' }}
+                        onClick={() => handleDeleteRequest(req._id)}
+                    >Delete</button>
+                )}
+                {(userRole === 'client' && (req.status === 'pending' || req.status === 'accepted')) && (
+                    <button
+                        className="btn-outline-sm"
+                        style={{ borderRadius: '50px', padding: '8px 20px', marginLeft: 'auto' }}
+                        onClick={() => handleCancelRequest(req._id)}
+                    >Cancel Order</button>
+                )}
+                {req.status === 'completed' && userRole === 'client' && <button className="btn-primary-sm" style={{ borderRadius: '50px' }}>Review <Star size={14} /></button>}
+            </div>
+        </div>
+    );
 
     return (
         <div className="dashboard-page section-padding">
@@ -209,9 +307,33 @@ const Dashboard = () => {
 
                 {['admin', 'provider'].includes(userRole?.toLowerCase()) && (
                     <div className="admin-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
-                        <button className={`btn-outline-sm ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>Orders</button>
+                        <button className={`btn-outline-sm ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>All Orders</button>
                         {userRole?.toLowerCase() === 'admin' && (
                             <>
+                                <button
+                                    className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('pending')}
+                                    style={{ position: 'relative' }}
+                                >
+                                    Pending Orders
+                                    {pendingRequests.length > 0 && (
+                                        <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#f59e0b', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {pendingRequests.length}
+                                        </span>
+                                    )}
+                                </button>
+                                <button
+                                    className={`btn-outline-sm ${activeTab === 'claimed' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('claimed')}
+                                    style={{ position: 'relative' }}
+                                >
+                                    Claimed Orders
+                                    {claimedRequests.length > 0 && (
+                                        <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--primary)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {claimedRequests.length}
+                                        </span>
+                                    )}
+                                </button>
                                 <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Customers</button>
                                 <button className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')} style={{ position: 'relative' }}>
                                     Pending Admins
@@ -239,56 +361,136 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <div className="requests-grid">
-                            {requests.map((req) => (
-                                <div key={req._id} className="request-card glass-card">
-                                    <div className="card-top">
-                                        {getStatusIcon(req.status)}
-                                        <span className={`status-badge ${req.status}`}>{getStatusLabel(req.status)}</span>
-                                    </div>
-
-                                    <div className="card-body">
-                                        <div className="info-item">
-                                            <small>FROM</small>
-                                            <p>{req.pickupLocation}</p>
-                                        </div>
-                                        <div className="info-item">
-                                            <small>TO</small>
-                                            <p>{req.dropoffLocation}</p>
-                                        </div>
-                                        <div className="info-split">
-                                            <div className="info-item">
-                                                <small>DATE</small>
-                                                <p>{new Date(req.movingDate).toLocaleDateString()}</p>
-                                            </div>
-                                            <div className="info-item">
-                                                <small>PRICE</small>
-                                                <p>₹{req.estimatedPrice}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                        <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
-                                        {userRole === 'admin' && (
-                                            <button
-                                                className="btn-outline"
-                                                style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '8px 25px', fontSize: '0.9rem' }}
-                                                onClick={() => handleDeleteRequest(req._id)}
-                                            >Delete</button>
-                                        )}
-                                        {(userRole === 'client' && (req.status === 'pending' || req.status === 'accepted')) && (
-                                            <button
-                                                className="btn-outline-sm"
-                                                style={{ borderRadius: '50px', padding: '8px 20px', marginLeft: 'auto' }}
-                                                onClick={() => handleCancelRequest(req._id)}
-                                            >Cancel Order</button>
-                                        )}
-                                        {req.status === 'completed' && userRole === 'client' && <button className="btn-primary-sm" style={{ borderRadius: '50px' }}>Review <Star size={14} /></button>}
-                                    </div>
-                                </div>
-                            ))}
+                            {requests.map((req) => renderRequestCard(req))}
                         </div>
                     )
+                ) : activeTab === 'pending' ? (
+                    <div>
+                        <div style={{ marginBottom: '20px' }}>
+                            <h3 style={{ color: 'var(--secondary)', marginBottom: '5px' }}>Pending Orders</h3>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>New unclaimed orders awaiting assignment. Claim an order to start managing it.</p>
+                        </div>
+                        {pendingRequests.length === 0 ? (
+                            <div className="white-card text-center p-50" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                                <div style={{ background: 'var(--bg-light)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Clock size={40} color="var(--primary)" />
+                                </div>
+                                <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>No pending orders</h3>
+                                <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>All orders have been claimed or there are no new bookings yet.</p>
+                            </div>
+                        ) : (
+                            <div className="requests-grid">
+                                {pendingRequests.map((req) => (
+                                    <div key={req._id} className="request-card glass-card">
+                                        <div className="card-top">
+                                            {getStatusIcon(req.status)}
+                                            <span className={`status-badge ${req.status}`}>{getStatusLabel(req.status)}</span>
+                                        </div>
+                                        <div className="card-body">
+                                            <div className="info-item"><small>FROM</small><p>{req.pickupLocation}</p></div>
+                                            <div className="info-item"><small>TO</small><p>{req.dropoffLocation}</p></div>
+                                            <div className="info-split">
+                                                <div className="info-item"><small>DATE</small><p>{new Date(req.movingDate).toLocaleDateString()}</p></div>
+                                                <div className="info-item"><small>PRICE</small><p>₹{req.estimatedPrice}</p></div>
+                                            </div>
+                                        </div>
+                                        <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                            <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
+                                            {req.status !== 'cancelled' && (
+                                                <button
+                                                    className="btn-primary-sm"
+                                                    style={{ borderRadius: '50px', padding: '8px 22px', marginLeft: 'auto' }}
+                                                    onClick={() => handleClaimOrder(req._id)}
+                                                >Claim</button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ) : activeTab === 'claimed' ? (
+                    <div>
+                        <div style={{ marginBottom: '20px' }}>
+                            <h3 style={{ color: 'var(--secondary)', marginBottom: '5px' }}>My Claimed Orders</h3>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>These are the orders you have personally claimed. Manage their status below.</p>
+                        </div>
+                        {claimedRequests.length === 0 ? (
+                            <div className="white-card text-center p-50" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                                <div style={{ background: 'var(--bg-light)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Tag size={40} color="var(--primary)" />
+                                </div>
+                                <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>No claimed orders yet</h3>
+                                <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>Go to the Orders page to claim pending orders and start managing them here.</p>
+                                <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.href = '/orders'}>Browse Unclaimed Orders</button>
+                            </div>
+                        ) : (
+                            <div className="requests-grid">
+                                {claimedRequests.map((req) => (
+                                    <div key={req._id} className="request-card glass-card" style={{ borderLeft: '3px solid var(--primary)' }}>
+                                        <div className="card-top">
+                                            {getStatusIcon(req.status)}
+                                            <span className={`status-badge ${req.status}`}>{getStatusLabel(req.status)}</span>
+                                        </div>
+
+                                        <div className="card-body">
+                                            <div className="info-item">
+                                                <small>FROM</small>
+                                                <p>{req.pickupLocation}</p>
+                                            </div>
+                                            <div className="info-item">
+                                                <small>TO</small>
+                                                <p>{req.dropoffLocation}</p>
+                                            </div>
+                                            <div className="info-split">
+                                                <div className="info-item">
+                                                    <small>DATE</small>
+                                                    <p>{new Date(req.movingDate).toLocaleDateString()}</p>
+                                                </div>
+                                                <div className="info-item">
+                                                    <small>PRICE</small>
+                                                    <p>₹{req.estimatedPrice}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {/* Row 1: Details + Delete */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
+                                                <button
+                                                    className="btn-outline"
+                                                    style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '8px 25px', fontSize: '0.9rem' }}
+                                                    onClick={() => handleDeleteRequest(req._id)}
+                                                >Delete</button>
+                                            </div>
+                                            {/* Row 2: Status buttons */}
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+                                                {['accepted', 'completed', 'cancelled'].map(s => (
+                                                    <button
+                                                        key={s}
+                                                        className={`btn-outline-sm ${req.status === s ? 'active' : ''}`}
+                                                        style={{
+                                                            borderRadius: '50px',
+                                                            padding: '8px 0',
+                                                            fontSize: '0.8rem',
+                                                            flex: 1,
+                                                            ...(s === 'cancelled' ? { color: '#ff4d4d', borderColor: '#ff4d4d' } : {}),
+                                                            ...(s === 'completed' ? { color: 'green', borderColor: 'green' } : {})
+                                                        }}
+                                                        onClick={() => handleUpdateStatus(req._id, s)}
+                                                        disabled={req.status === s}
+                                                    >
+                                                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 ) : activeTab === 'users' ? (
                     <div className="users-list glass-card p-30">
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -413,26 +615,47 @@ const Dashboard = () => {
                                     <small>ESTIMATED PRICE</small>
                                     <p style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: '700' }}>₹{selectedRequest.estimatedPrice}</p>
                                 </div>
+                                {selectedRequest.claimedBy && (
+                                    <div className="modal-item">
+                                        <small>STATUS</small>
+                                        <p style={{ color: 'var(--primary)', fontWeight: '600' }}>
+                                            {isClaimedByMe(selectedRequest) ? '✅ Claimed by you' : `🔒 Claimed by ${selectedRequest.claimedBy?.name || 'another admin'}`}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="status-management" style={{ borderTop: '2px solid var(--bg-light)', paddingTop: '30px' }}>
                                 {userRole === 'admin' ? (
                                     <>
-                                        <small style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '15px', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Manage Status</small>
-                                        <div className="status-btns" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                                            {['pending', 'accepted', 'completed', 'cancelled'].map(s => (
-                                                <button
-                                                    key={s}
-                                                    className={`btn-outline-sm ${selectedRequest.status === s ? 'active' : ''}`}
-                                                    onClick={() => handleUpdateStatus(selectedRequest._id, s)}
-                                                >
-                                                    {s}
-                                                </button>
-                                            ))}
-                                        </div>
+                                        
+                                        {isClaimedByMe(selectedRequest) ? (
+                                            <>
+                                                <small style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '15px', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Manage Status</small>
+                                                <div className="status-btns" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                    {['pending', 'accepted', 'completed', 'cancelled'].map(s => (
+                                                        <button
+                                                            key={s}
+                                                            className={`btn-outline-sm ${selectedRequest.status === s ? 'active' : ''}`}
+                                                            onClick={() => handleUpdateStatus(selectedRequest._id, s)}
+                                                        >
+                                                            {s}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        ) : selectedRequest.claimedBy ? (
+                                            <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
+                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>🔒 This order has been claimed by another admin. Only they can update the status.</p>
+                                            </div>
+                                        ) : (
+                                            <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
+                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>This order is unclaimed. Go to the <strong>Orders</strong> page to claim it first.</p>
+                                            </div>
+                                        )}
                                     </>
                                 ) : (
-                                    userRole === 'client' && (selectedRequest.status === 'pending' || selectedRequest.status === 'accepted') && (
+                                    userRole === 'client' && (selectedRequest.status === 'pending' || selectedRequest.status === 'accepted' || selectedRequest.status === 'claimed') && (
                                         <div style={{ textAlign: 'center' }}>
                                             <button
                                                 className="btn-outline"
