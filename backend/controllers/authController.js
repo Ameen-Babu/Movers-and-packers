@@ -110,6 +110,10 @@ const loginUser = async (req, res) => {
             return res.status(403).json({ message: 'Your admin account is pending approval' });
         }
 
+        if (!user.isActive) {
+            return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
+        }
+
         let profileData = {};
         if (user.role === 'client') {
             profileData = await Client.findOne({ userId: user._id });

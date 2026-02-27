@@ -70,11 +70,26 @@ const approveAdmin = async (req, res) => {
     }
 };
 
+const toggleUserStatus = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (user.role === 'admin') return res.status(400).json({ message: 'Cannot deactivate an admin account' });
+
+        user.isActive = !user.isActive;
+        await user.save();
+        res.status(200).json({ message: `Account ${user.isActive ? 'activated' : 'deactivated'} successfully`, isActive: user.isActive });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     getAllUsers,
     getStats,
     deleteUser,
     getPendingAdmins,
     approveAdmin,
+    toggleUserStatus,
 };
 

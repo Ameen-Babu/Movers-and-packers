@@ -99,21 +99,24 @@ const Dashboard = () => {
         return status.toUpperCase();
     };
 
-    const handleDeleteUser = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this user?')) return;
+    const handleToggleUserStatus = async (id, currentlyActive) => {
+        const action = currentlyActive ? 'deactivate' : 'activate';
+        if (!window.confirm(`Are you sure you want to ${action} this account?`)) return;
         const user = JSON.parse(localStorage.getItem('user'));
         try {
             const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-            const res = await fetch(`${apiBaseUrl}/admin/users/${id}`, {
-                method: 'DELETE',
+            const res = await fetch(`${apiBaseUrl}/admin/users/${id}/toggle-status`, {
+                method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             if (res.ok) {
-                setUsers(users.filter(u => u._id !== id));
-                alert('User deleted');
+                const data = await res.json();
+                setUsers(users.map(u => u._id === id ? { ...u, isActive: data.isActive } : u));
+            } else {
+                alert('Action failed');
             }
         } catch (err) {
-            alert('Delete failed');
+            alert('Action failed');
         }
     };
 
@@ -504,17 +507,30 @@ const Dashboard = () => {
                             </thead>
                             <tbody>
                                 {users.map(u => (
-                                    <tr key={u._id}>
-                                        <td>{u.name}</td>
+                                    <tr key={u._id} style={{ opacity: u.isActive === false ? 0.6 : 1 }}>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                {u.name}
+                                                {u.isActive === false && (
+                                                    <span style={{ background: '#ff4d4d22', color: '#ff4d4d', borderRadius: '50px', padding: '2px 10px', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.5px' }}>INACTIVE</span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td>{u.email}</td>
                                         <td><span className="status-badge" style={{ background: u.role === 'admin' ? 'var(--primary)' : 'var(--bg-light)', color: u.role === 'admin' ? 'var(--white)' : 'var(--text-muted)', borderRadius: '50px' }}>{u.role}</span></td>
                                         <td>
                                             <button
                                                 className="btn-outline"
-                                                style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '8px 25px', fontSize: '0.9rem' }}
-                                                onClick={() => handleDeleteUser(u._id)}
+                                                style={{
+                                                    borderRadius: '50px',
+                                                    padding: '8px 20px',
+                                                    fontSize: '0.9rem',
+                                                    color: u.isActive === false ? '#22c55e' : '#ff4d4d',
+                                                    borderColor: u.isActive === false ? '#22c55e' : '#ff4d4d',
+                                                }}
+                                                onClick={() => handleToggleUserStatus(u._id, u.isActive !== false)}
                                                 disabled={u.role === 'admin'}
-                                            >Delete</button>
+                                            >{u.isActive === false ? 'Activate' : 'Deactivate'}</button>
                                         </td>
                                     </tr>
                                 ))}
