@@ -128,9 +128,8 @@ const getAdminPerformance = async (req, res) => {
         if (timeRange === '7d') {
             daysToLoop = 7;
             const d = new Date();
-            d.setDate(d.getDate() - 7);
-            dateFilter = { $gte: d };
-        } else if (timeRange === '30d') {
+            d.setDate(d.getDate() - 6);
+            dateFilter = { $gte: d };        } else if (timeRange === '30d') {
             daysToLoop = 30;
             const d = new Date();
             d.setDate(d.getDate() - 29);
