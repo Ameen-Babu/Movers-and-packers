@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// auth protect
 const protect = async (req, res, next) => {
     let token;
 
@@ -28,16 +27,18 @@ const protect = async (req, res, next) => {
     }
 };
 
-// admin or superadmin check
 const admin = (req, res, next) => {
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
+    if (req.user && (req.user.role === 'superadmin' || (req.user.role === 'admin' && req.user.isApproved))) {
         next();
     } else {
-        res.status(401).json({ message: 'Not authorized as an admin' });
+        res.status(401).json({ 
+            message: req.user && req.user.role === 'admin' && !req.user.isApproved 
+                ? 'Your account is pending approval' 
+                : 'Not authorized as an admin' 
+        });
     }
 };
 
-// superadmin only check
 const superadmin = (req, res, next) => {
     if (req.user && req.user.role === 'superadmin') {
         next();

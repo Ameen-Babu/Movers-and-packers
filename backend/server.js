@@ -17,7 +17,6 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/services', require('./routes/serviceRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
@@ -25,7 +24,6 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 
-// Basic route
 app.get('/', (req, res) => {
     res.send('Movers and Packers API is running...');
 });

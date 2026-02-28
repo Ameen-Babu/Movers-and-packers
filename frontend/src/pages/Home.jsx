@@ -1,4 +1,3 @@
-// landing page
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Truck, Package, Clock, Star, ArrowRight } from 'lucide-react';
@@ -18,14 +17,12 @@ const Home = () => {
                     </div>
                 </div>
             </section>
-
             <section className="services section-padding">
                 <div className="container">
                     <div className="section-header text-center">
                         <h2>Our Services</h2>
                         <p>We provide a wide range of logistics and moving services</p>
                     </div>
-
                     <div className="services-grid">
                         <div className="service-card glass-card">
                             <div className="service-icon"><Package /></div>
@@ -37,7 +34,6 @@ const Home = () => {
                                 <li>Duration: 4-10 hours</li>
                             </ul>
                         </div>
-
                         <div className="service-card glass-card">
                             <div className="service-icon"><Truck /></div>
                             <h3>Loading & Transport</h3>
@@ -48,7 +44,6 @@ const Home = () => {
                                 <li>Real-time tracking</li>
                             </ul>
                         </div>
-
                         <div className="service-card glass-card">
                             <div className="service-icon"><Clock /></div>
                             <h3>Unloading & Unpacking</h3>
@@ -62,7 +57,6 @@ const Home = () => {
                     </div>
                 </div>
             </section>
-
             <section className="features section-padding bg-dark">
                 <div className="container">
                     <div className="features-grid">
@@ -84,14 +78,12 @@ const Home = () => {
                     </div>
                 </div>
             </section>
-
             <section className="feedback section-padding">
                 <div className="container">
                     <div className="section-header text-center">
                         <h2>Customer Feedback</h2>
                         <p>Hear from our great clients who moved with us</p>
                     </div>
-
                     <div className="feedback-grid">
                         <div className="review-card glass-card">
                             <div className="stars">
@@ -113,7 +105,6 @@ const Home = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className="review-card glass-card">
                             <div className="stars">
                                 <Star size={18} fill="var(--primary)" />
@@ -134,7 +125,6 @@ const Home = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className="review-card glass-card">
                             <div className="stars">
                                 <Star size={18} fill="var(--primary)" />
@@ -158,7 +148,6 @@ const Home = () => {
                     </div>
                 </div>
             </section>
-
             <section className="cta section-padding">
                 <div className="container">
                     <div className="cta-content glass-card">

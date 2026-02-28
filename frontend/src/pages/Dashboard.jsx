@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Truck, Clock, CheckCircle, AlertCircle, Star, Tag, TrendingUp, DollarSign } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const Dashboard = () => {
     const [requests, setRequests] = useState([]);
@@ -13,14 +13,17 @@ const Dashboard = () => {
     const [error, setError] = useState('');
     const [adminPerformance, setAdminPerformance] = useState(null);
     const [selectedAdminIdForStats, setSelectedAdminIdForStats] = useState('');
+    const [analyticsTimeRange, setAnalyticsTimeRange] = useState('7d');
     const [userRole, setUserRole] = useState('');
     const [activeTab, setActiveTab] = useState('requests');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const currentUser = JSON.parse(localStorage.getItem('user'));
-    const isAdmin = ['admin', 'superadmin'].includes(currentUser?.role?.toLowerCase());
     const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
+    const isApprovedAdmin = isSuperAdmin || (currentUser?.role?.toLowerCase() === 'admin' && currentUser?.isApproved === true);
+    const isAdmin = isApprovedAdmin || isSuperAdmin;
+    const isPendingAdmin = currentUser?.role?.toLowerCase() === 'admin' && !currentUser?.isApproved;
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -52,7 +55,7 @@ const Dashboard = () => {
                     setError(data.message || 'Failed to fetch requests');
                 }
 
-                if (user.role?.toLowerCase() === 'admin' || user.role?.toLowerCase() === 'superadmin') {
+                if (isApprovedAdmin || isSuperAdmin) {
                     const pendingRes = await fetch(`${apiBaseUrl}/services?view=pending`, {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
@@ -68,7 +71,7 @@ const Dashboard = () => {
                     });
                     if (usersRes.ok) setUsers(await usersRes.json());
 
-                    if (user.role?.toLowerCase() === 'superadmin') {
+                    if (isSuperAdmin) {
                         const adminPendingRes = await fetch(`${apiBaseUrl}/admin/pending-admins`, {
                             headers: { 'Authorization': `Bearer ${user.token}` }
                         });
@@ -80,8 +83,7 @@ const Dashboard = () => {
                     });
                     if (claimedRes.ok) setClaimedRequests(await claimedRes.json());
 
-                    // Initial performance fetch for the current user
-                    const perfRes = await fetch(`${apiBaseUrl}/admin/my-performance`, {
+                    const perfRes = await fetch(`${apiBaseUrl}/admin/my-performance?timeRange=${analyticsTimeRange}`, {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
                     if (perfRes.ok) setAdminPerformance(await perfRes.json());
@@ -96,20 +98,25 @@ const Dashboard = () => {
         fetchRequests();
     }, []);
 
-    const fetchSpecificAdminPerformance = async (adminId) => {
+    const fetchSpecificAdminPerformance = async (adminId, range = analyticsTimeRange) => {
         setSelectedAdminIdForStats(adminId);
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) return;
         try {
             const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-            const query = adminId ? `?adminId=${adminId}` : '';
-            const perfRes = await fetch(`${apiBaseUrl}/admin/my-performance${query}`, {
+            const adminQuery = adminId ? `adminId=${adminId}&` : '';
+            const perfRes = await fetch(`${apiBaseUrl}/admin/my-performance?${adminQuery}timeRange=${range}`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             if (perfRes.ok) setAdminPerformance(await perfRes.json());
         } catch (err) {
             console.error('Failed to fetch performance stats', err);
         }
+    };
+
+    const handleTimeRangeChange = (range) => {
+        setAnalyticsTimeRange(range);
+        fetchSpecificAdminPerformance(selectedAdminIdForStats, range);
     };
 
     const getStatusIcon = (status) => {
@@ -363,46 +370,55 @@ const Dashboard = () => {
                     </span>
                 </div>
 
-                {(['admin', 'superadmin'].includes(userRole?.toLowerCase())) && (
+                {isPendingAdmin && (
+                    <div className="white-card p-30 text-center mb-30" style={{ borderLeft: '5px solid #f59e0b', background: 'var(--bg-card)' }}>
+                        <div style={{ background: 'rgba(245, 158, 11, 0.1)', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px' }}>
+                            <Clock size={30} color="#f59e0b" />
+                        </div>
+                        <h3 style={{ color: '#f59e0b', marginBottom: '10px' }}>Dashboard Under Review</h3>
+                        <p style={{ color: 'var(--text-muted)', maxWidth: '500px', margin: '0 auto' }}>
+                            Your admin account is currently pending approval from the SuperAdmin. 
+                            You will gain access to orders and platform controls once your account is verified.
+                        </p>
+                    </div>
+                )}
+
+                {isApprovedAdmin && (
                     <div className="admin-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
                         <button className={`btn-outline-sm ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>All Orders</button>
-                        {(['admin', 'superadmin'].includes(userRole?.toLowerCase())) && (
-                            <>
-                                <button
-                                    className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('pending')}
-                                    style={{ position: 'relative' }}
-                                >
-                                    Pending Orders
-                                    {pendingRequests.length > 0 && (
-                                        <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#f59e0b', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            {pendingRequests.length}
-                                        </span>
-                                    )}
-                                </button>
-                                <button
-                                    className={`btn-outline-sm ${activeTab === 'claimed' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('claimed')}
-                                    style={{ position: 'relative' }}
-                                >
-                                    Claimed Orders
-                                    {claimedRequests.length > 0 && (
-                                        <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--primary)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            {claimedRequests.length}
-                                        </span>
-                                    )}
-                                </button>
-                                <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Users</button>
-                                {isSuperAdmin && (
-                                <button className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')} style={{ position: 'relative' }}>
-                                    Pending Admins
-                                    {pendingAdmins.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff4d4d', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingAdmins.length}</span>}
-                                </button>
-                                )}
-                                <button className={`btn-outline-sm ${activeTab === 'performance' ? 'active' : ''}`} onClick={() => setActiveTab('performance')}>Analytics</button>
-                                <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Platform Overview</button>
-                            </>
+                        <button
+                            className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('pending')}
+                            style={{ position: 'relative' }}
+                        >
+                            Pending Orders
+                            {pendingRequests.length > 0 && (
+                                <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#f59e0b', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {pendingRequests.length}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            className={`btn-outline-sm ${activeTab === 'claimed' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('claimed')}
+                            style={{ position: 'relative' }}
+                        >
+                            Claimed Orders
+                            {claimedRequests.length > 0 && (
+                                <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--primary)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {claimedRequests.length}
+                                </span>
+                            )}
+                        </button>
+                        <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Users</button>
+                        {isSuperAdmin && (
+                            <button className={`btn-outline-sm ${activeTab === 'admin-pending' ? 'active' : ''}`} onClick={() => setActiveTab('admin-pending')} style={{ position: 'relative' }}>
+                                Pending Admins
+                                {pendingAdmins.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff4d4d', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingAdmins.length}</span>}
+                            </button>
                         )}
+                        <button className={`btn-outline-sm ${activeTab === 'performance' ? 'active' : ''}`} onClick={() => setActiveTab('performance')}>Analytics</button>
+                        <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Platform Overview</button>
                     </div>
                 )}
 
@@ -412,13 +428,17 @@ const Dashboard = () => {
                     <div className="auth-error">{error}</div>
                 ) : activeTab === 'requests' ? (
                     requests.length === 0 ? (
-                        <div className="white-card text-center p-50" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                        <div className="white-card text-center p-50" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', background: 'var(--bg-card)' }}>
                             <div style={{ background: 'var(--bg-light)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
                                 <Truck size={40} color="var(--primary)" />
                             </div>
-                            <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>No requests found</h3>
-                            <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>You haven't booked any moves yet. Start your journey with us by booking your first professional move today.</p>
-                            <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.href = '/booking'}>Book Your First Move</button>
+                            <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>No orders found</h3>
+                            <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>
+                                {isApprovedAdmin ? 'There are no service requests in the platform yet.' : "You haven't booked any moves yet. Start your journey with us by booking your first professional move today."}
+                            </p>
+                            {!isApprovedAdmin && (
+                                <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.href = '/booking'}>Book Your First Move</button>
+                            )}
                         </div>
                     ) : (
                         <div className="requests-grid">
@@ -516,7 +536,6 @@ const Dashboard = () => {
                                         </div>
 
                                         <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                            {/* Row 1: Details + Delete */}
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                 <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
                                                 <button
@@ -525,7 +544,6 @@ const Dashboard = () => {
                                                     onClick={() => handleDeleteRequest(req._id)}
                                                 >Delete</button>
                                             </div>
-                                            {/* Row 2: Status buttons */}
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
                                                 {['accepted', 'completed', 'cancelled'].map(s => (
                                                     <button
@@ -623,7 +641,7 @@ const Dashboard = () => {
                             </tbody>
                         </table>
                     </div>
-                ) : activeTab === 'pending' ? (
+                ) : activeTab === 'admin-pending' ? (
                     <div className="users-list glass-card p-30">
                         <h3 style={{ marginBottom: '20px', color: 'var(--secondary)' }}>Pending Admin Approvals</h3>
                         {pendingAdmins.length === 0 ? (
@@ -664,10 +682,37 @@ const Dashboard = () => {
                     </div>
                 ) : activeTab === 'performance' ? (
                     <div className="performance-view">
-                        
-                        {isSuperAdmin && (
-                            <div className="glass-card" style={{ marginBottom: '20px', padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderRadius: '15px' }}>
-                                <label style={{ fontWeight: '600', color: 'var(--secondary)' }}>Select Admin to View:</label>
+                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                            {isSuperAdmin && (
+                                <div className="glass-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderRadius: '15px', flex: 1, minWidth: '300px' }}>
+                                    <label style={{ fontWeight: '600', color: 'var(--secondary)', minWidth: 'max-content' }}>Select Admin:</label>
+                                    <select
+                                        style={{
+                                            padding: '10px 15px',
+                                            borderRadius: '10px',
+                                            border: '1px solid var(--border-color)',
+                                            background: 'var(--bg-light)',
+                                            color: 'var(--text-main)',
+                                            outline: 'none',
+                                            width: '100%',
+                                            cursor: 'pointer'
+                                        }}
+                                        value={selectedAdminIdForStats}
+                                        onChange={(e) => fetchSpecificAdminPerformance(e.target.value)}
+                                    >
+                                        <option value="">{currentUser?.name} (You)</option>
+                                        {users.filter(u => u.role === 'admin' || u.role === 'superadmin')
+                                            .filter(u => u.email !== currentUser?.email)
+                                            .map(u => (
+                                                <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="glass-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderRadius: '15px', flex: isSuperAdmin ? 1 : 'none', minWidth: '300px' }}>
+                                <label style={{ fontWeight: '600', color: 'var(--secondary)', minWidth: 'max-content' }}>Time Range:</label>
                                 <select
                                     style={{
                                         padding: '10px 15px',
@@ -676,22 +721,18 @@ const Dashboard = () => {
                                         background: 'var(--bg-light)',
                                         color: 'var(--text-main)',
                                         outline: 'none',
-                                        minWidth: '250px',
+                                        width: '100%',
                                         cursor: 'pointer'
                                     }}
-                                    value={selectedAdminIdForStats}
-                                    onChange={(e) => fetchSpecificAdminPerformance(e.target.value)}
+                                    value={analyticsTimeRange}
+                                    onChange={(e) => handleTimeRangeChange(e.target.value)}
                                 >
-                                    <option value="">{currentUser?.name} (You)</option>
-                                    {users.filter(u => u.role === 'admin' || u.role === 'superadmin')
-                                        .filter(u => u.email !== currentUser?.email)
-                                        .map(u => (
-                                            <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
-                                        ))
-                                    }
+                                    <option value="7d">Last 7 Days</option>
+                                    <option value="30d">Last 30 Days</option>
+                                    <option value="6m">Last 6 Months</option>
                                 </select>
                             </div>
-                        )}
+                        </div>
 
                         <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
                             <div className="stat-card glass-card p-30" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -731,16 +772,33 @@ const Dashboard = () => {
                             <h3 style={{ marginBottom: '25px', color: 'var(--secondary)' }}>Performance Timeline</h3>
                             {adminPerformance?.chartData && adminPerformance.chartData.length > 0 ? (
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={adminPerformance.chartData}>
+                                    <BarChart data={adminPerformance.chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                                        <XAxis dataKey="date" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
-                                        <YAxis yAxisId="left" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} tickFormatter={(val) => Math.round(val)} />
+                                        <XAxis 
+                                            dataKey="date" 
+                                            stroke="var(--text-muted)" 
+                                            tick={{ fill: 'var(--text-muted)' }} 
+                                            axisLine={false} 
+                                            tickLine={false} 
+                                            minTickGap={20}
+                                        />
+                                        
+                                        {/* Left Y-Axis for Jobs */}
+                                        <YAxis yAxisId="left" orientation="left" stroke="var(--primary)" tick={{ fill: 'var(--primary)' }} axisLine={false} tickLine={false} tickFormatter={(val) => Math.round(val)} />
+                                        
+                                        {/* Right Y-Axis for Revenue */}
+                                        <YAxis yAxisId="right" orientation="right" stroke="#22c55e" tick={{ fill: '#22c55e' }} axisLine={false} tickLine={false} tickFormatter={(val) => `₹${val.toLocaleString()}`} />
+                                        
                                         <Tooltip 
                                             contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '15px', color: 'var(--text-main)' }}
-                                            itemStyle={{ color: 'var(--primary)', fontWeight: 'bold' }}
+                                            itemStyle={{ fontWeight: 'bold' }}
+                                            cursor={{ fill: 'transparent' }}
                                         />
-                                        <Line yAxisId="left" type="monotone" dataKey="jobs" stroke="var(--primary)" strokeWidth={4} dot={{ r: 6, fill: 'var(--bg-body)', strokeWidth: 3 }} activeDot={{ r: 8 }} name="Jobs Completed" />
-                                    </LineChart>
+                                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                        
+                                        <Bar yAxisId="left" dataKey="jobs" name="Jobs Completed" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                        <Bar yAxisId="right" dataKey="revenue" name="Revenue Earned (₹)" fill="#22c55e" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    </BarChart>
                                 </ResponsiveContainer>
                             ) : (
                                 <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
@@ -804,7 +862,7 @@ const Dashboard = () => {
                                     <div className="modal-item">
                                         <small>STATUS</small>
                                         <p style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                                            {isClaimedByMe(selectedRequest) ? 'Ã¢Å“â€¦ Claimed by you' : `Ã°Å¸â€â€™ Claimed by ${selectedRequest.claimedBy?.name || 'another admin'}`}
+                                            {isClaimedByMe(selectedRequest) ? '✅ Claimed by you' : `➡️ Claimed by ${selectedRequest.claimedBy?.name || 'another admin'}`}
                                         </p>
                                     </div>
                                 )}
@@ -813,7 +871,6 @@ const Dashboard = () => {
                             <div className="status-management" style={{ borderTop: '2px solid var(--bg-light)', paddingTop: '30px' }}>
                                 {(userRole === 'admin' || userRole === 'superadmin') ? (
                                     <>
-                                        {/* superadmin can manage ANY order's status, admin only their claimed ones */}
                                         {(isSuperAdmin || isClaimedByMe(selectedRequest)) ? (
                                             <>
                                                 <small style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '15px', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Manage Status</small>
@@ -831,7 +888,7 @@ const Dashboard = () => {
                                             </>
                                         ) : selectedRequest.claimedBy ? (
                                             <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
-                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Ã°Å¸â€â€™ This order has been claimed by another admin. Only they can update the status.</p>
+                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>➡️ This order has been claimed by another admin. Only they can update the status.</p>
                                             </div>
                                         ) : (
                                             <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
@@ -875,5 +932,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-

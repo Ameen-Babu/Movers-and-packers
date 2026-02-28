@@ -1,4 +1,3 @@
-// book service
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, MapPin, Calendar, Truck, ArrowRight } from 'lucide-react';
@@ -25,13 +24,9 @@ const Booking = () => {
         'office-shift': 12000,
         'house-shift': 12000
     };
-
-    
     const calculatePrice = (dist, wt, type) => {
         const base = baseRates[type] || 3000;
-        const distCost = dist * 18; // ₹18 per km
-
-        
+        const distCost = dist * 18;
         const isPackage = type === 'house-shift' || type === 'office-shift';
         const weightCost = isPackage ? 0 : (wt * 5); // ₹5 per kg
 
@@ -39,20 +34,15 @@ const Booking = () => {
         const tax = subtotal * 0.05; // 5% GST
         return Math.round(subtotal + tax);
     };
-
-    
     useEffect(() => {
         const timer = setTimeout(async () => {
             if (formData.pickupLocation.length >= 3 && formData.dropoffLocation.length >= 3) {
                 const dist = await fetchDistance(formData.pickupLocation, formData.dropoffLocation);
                 if (dist > 0) setDistance(dist);
             }
-        }, 1000); // 1 second delay
-
+        }, 1000);
         return () => clearTimeout(timer);
     }, [formData.pickupLocation, formData.dropoffLocation]);
-
-    
     useEffect(() => {
         const newPrice = calculatePrice(distance, formData.weight, formData.serviceType);
         setFormData(prev => {

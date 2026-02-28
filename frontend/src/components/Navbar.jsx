@@ -1,4 +1,3 @@
-// main nav
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut, User, ChevronDown, Settings, Truck } from 'lucide-react';
@@ -19,10 +18,8 @@ const Navbar = () => {
         setUser(null);
       }
     };
-
     checkUser();
     window.addEventListener('storage', checkUser);
-
     window.addEventListener('userLogin', checkUser);
 
     return () => {

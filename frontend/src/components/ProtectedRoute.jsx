@@ -20,8 +20,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
             }, 1000);
             return () => clearInterval(timer);
         }
-    }, []);
-
+    }, [user, navigate]);
     if (!user || !user.token) {
         return (
             <div style={{
