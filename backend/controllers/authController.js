@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Client = require('../models/Client');
-const Provider = require('../models/Provider');
 const { sendWelcomeEmail } = require('../utils/emailService');
 
 
@@ -56,16 +55,6 @@ const registerUser = async (req, res) => {
                 city,
                 pincode,
             });
-        } else if (role === 'provider') {
-            if (!companyName || !licenseNo) {
-                await User.findByIdAndDelete(user._id);
-                return res.status(400).json({ message: 'Please add companyName and licenseNo for provider' });
-            }
-            await Provider.create({
-                userId: user._id,
-                companyName,
-                licenseNo,
-            });
         } else if (role === 'admin') {
             await Admin.create({
                 userId: user._id,
@@ -117,8 +106,6 @@ const loginUser = async (req, res) => {
         let profileData = {};
         if (user.role === 'client') {
             profileData = await Client.findOne({ userId: user._id });
-        } else if (user.role === 'provider') {
-            profileData = await Provider.findOne({ userId: user._id });
         } else if (user.role === 'admin') {
             profileData = await Admin.findOne({ userId: user._id });
         }
@@ -142,8 +129,6 @@ const getMe = async (req, res) => {
     let profileData = {};
     if (req.user.role === 'client') {
         profileData = await Client.findOne({ userId: req.user._id });
-    } else if (req.user.role === 'provider') {
-        profileData = await Provider.findOne({ userId: req.user._id });
     } else if (req.user.role === 'admin') {
         profileData = await Admin.findOne({ userId: req.user._id });
     }
@@ -178,13 +163,6 @@ const updateProfile = async (req, res) => {
                 profile.address = address || profile.address;
                 profile.city = city || profile.city;
                 profile.pincode = pincode || profile.pincode;
-                await profile.save();
-            }
-        } else if (user.role === 'provider') {
-            profile = await Provider.findOne({ userId: user._id });
-            if (profile) {
-                profile.companyName = companyName || profile.companyName;
-                profile.licenseNo = licenseNo || profile.licenseNo;
                 await profile.save();
             }
         }

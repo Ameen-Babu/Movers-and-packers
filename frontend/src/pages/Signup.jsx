@@ -13,9 +13,7 @@ const Signup = () => {
         phone: '',
         address: '',
         city: '',
-        pincode: '',
-        companyName: '',
-        licenseNo: ''
+        pincode: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -90,16 +88,6 @@ const Signup = () => {
                             </div>
 
                             <div className="form-group">
-                                <label>ROLE</label>
-                                <div className="input-wrapper">
-                                    <select name="role" value={formData.role} onChange={handleChange} className="auth-select">
-                                        <option value="client">Client</option>
-                                        <option value="provider">Provider</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="form-group">
                                 <label>PASSWORD</label>
                                 <div className="input-wrapper">
                                     <input name="password" type="password" placeholder="********" required onChange={handleChange} />
@@ -113,43 +101,24 @@ const Signup = () => {
                                 </div>
                             </div>
 
-                            {formData.role === 'client' ? (
-                                <>
-                                    <div className="form-group full-width">
-                                        <label>ADDRESS</label>
-                                        <div className="input-wrapper">
-                                            <input name="address" type="text" placeholder="123 Main St" required onChange={handleChange} />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>CITY</label>
-                                        <div className="input-wrapper">
-                                            <input name="city" type="text" placeholder="New York" required onChange={handleChange} />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>PINCODE</label>
-                                        <div className="input-wrapper">
-                                            <input name="pincode" type="text" placeholder="10001" required onChange={handleChange} />
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="form-group">
-                                        <label>COMPANY NAME</label>
-                                        <div className="input-wrapper">
-                                            <input name="companyName" type="text" placeholder="Hydrox Logistics" required onChange={handleChange} />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>LICENSE NO</label>
-                                        <div className="input-wrapper">
-                                            <input name="licenseNo" type="text" placeholder="L-12345" required onChange={handleChange} />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
+                            <div className="form-group full-width">
+                                <label>ADDRESS</label>
+                                <div className="input-wrapper">
+                                    <input name="address" type="text" placeholder="123 Main St" required onChange={handleChange} />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>CITY</label>
+                                <div className="input-wrapper">
+                                    <input name="city" type="text" placeholder="New York" required onChange={handleChange} />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>PINCODE</label>
+                                <div className="input-wrapper">
+                                    <input name="pincode" type="text" placeholder="10001" required onChange={handleChange} />
+                                </div>
+                            </div>
                         </div>
 
                         <button type="submit" className="auth-btn" disabled={loading}>
