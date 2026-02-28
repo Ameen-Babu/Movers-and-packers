@@ -12,7 +12,7 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-const getNotifications = async (req, res) => {
+const getStats = async (req, res) => {
     try {
         const userCount = await User.countDocuments();
         const clientCount = await Client.countDocuments();
@@ -88,25 +88,21 @@ const updateUserRole = async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        // Protect superadmin accounts from being downgraded by another superadmin
         if (user.role === 'superadmin' && req.user._id.toString() !== user._id.toString()) {
             return res.status(403).json({ message: 'Cannot change the role of another superadmin in this way' });
         }
 
         user.role = role;
 
-        // Auto-approve newly promoted admins/superadmins
         if (role === 'admin' || role === 'superadmin') {
             user.isApproved = true;
             
-            // Ensure Admin profile exists
             const adminExists = await Admin.findOne({ userId: user._id });
             if (!adminExists) {
                 await Admin.create({ userId: user._id });
             }
         }
 
-        // Ensure Client profile exists
         if (role === 'client') {
             const clientExists = await Client.findOne({ userId: user._id });
             if (!clientExists) {
@@ -124,8 +120,11 @@ const updateUserRole = async (req, res) => {
 const getAdminPerformance = async (req, res) => {
     try {
         let targetAdminId = req.user._id;
+        const { timeRange = '7d' } = req.query;
 
         let daysToLoop = 7;
+        let dateFilter = {};
+
         if (timeRange === '7d') {
             daysToLoop = 7;
             const d = new Date();
@@ -137,14 +136,12 @@ const getAdminPerformance = async (req, res) => {
             d.setDate(d.getDate() - 29);
             dateFilter = { $gte: d };
         } else if (timeRange === '6m') {
-            // "6m" actually means Last 6 Months now.
             const d = new Date();
             d.setMonth(d.getMonth() - 5);
-            d.setDate(1); // Start of the 6th month ago
+            d.setDate(1); 
             dateFilter = { $gte: d };
         }
 
-        // Fetch completed requests claimed by this admin
         const query = {
             claimedBy: targetAdminId,
             status: 'completed',
@@ -155,7 +152,6 @@ const getAdminPerformance = async (req, res) => {
 
         const totalCompleted = completedRequests.length;
 
-        // Calculate total revenue from these completed requests
         let totalRevenue = 0;
         completedRequests.forEach(req => {
             totalRevenue += req.estimatedPrice || 0;
@@ -166,7 +162,6 @@ const getAdminPerformance = async (req, res) => {
         if (timeRange === '6m') {
             let startMonth = new Date(today.getFullYear(), today.getMonth() - 5, 1); 
 
-            // Loop month by month up to current month inclusive
             const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             let loopDate = new Date(startMonth);
             
@@ -175,11 +170,9 @@ const getAdminPerformance = async (req, res) => {
                 const dateStr = loopDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
                 chartDataMap[key] = { date: dateStr, jobs: 0, revenue: 0, sortKey: key };
                 
-                // Move to next month
                 loopDate.setMonth(loopDate.getMonth() + 1);
             }
 
-            // Fill with actual data
             completedRequests.forEach(req => {
                 const d = new Date(req.updatedAt);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -193,7 +186,7 @@ const getAdminPerformance = async (req, res) => {
             for (let i = daysToLoop - 1; i >= 0; i--) {
                 const d = new Date(today);
                 d.setDate(d.getDate() - i);
-                const key = d.toISOString().split('T')[0]; // YYYY-MM-DD
+                const key = d.toISOString().split('T')[0]; 
                 const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 chartDataMap[key] = { date: dateStr, jobs: 0, revenue: 0, sortKey: key };
             }
@@ -209,7 +202,6 @@ const getAdminPerformance = async (req, res) => {
             });
         }
 
-        // Convert map to sorted array based on sortKey
         const chartData = Object.values(chartDataMap).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
         res.status(200).json({
