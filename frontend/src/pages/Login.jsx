@@ -32,7 +32,6 @@ const Login = () => {
 
             if (response.ok) {
                 localStorage.setItem('user', JSON.stringify(data.user || data));
-                // Dispatch both to cover same-window and multi-tab sync
                 window.dispatchEvent(new Event('storage'));
                 window.dispatchEvent(new Event('userLogin'));
                 navigate('/');
