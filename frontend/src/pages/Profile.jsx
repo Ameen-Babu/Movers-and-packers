@@ -30,8 +30,8 @@ const Profile = () => {
 
     const getRoleBadgeColor = (role) => {
         switch (role?.toLowerCase()) {
+            case 'superadmin':
             case 'admin': return { bg: '#ffe5e5', color: '#d32f2f' };
-            case 'provider': return { bg: '#e3f2fd', color: '#1976d2' };
             default: return { bg: '#e8f5e9', color: '#2e7d32' };
         }
     };

@@ -1,6 +1,5 @@
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
-const Provider = require('../models/Provider');
 const User = require('../models/User');
 const { sendOrderCreatedEmail, sendOrderCancelledEmail } = require('../utils/emailService');
 
@@ -47,14 +46,7 @@ const getServiceRequests = async (req, res) => {
         if (req.user.role === 'client') {
             const client = await Client.findOne({ userId: req.user._id });
             requests = await ServiceRequest.find({ clientId: client._id });
-        } else if (req.user.role === 'provider') {
-            if (req.query.view === 'all') {
-                requests = await ServiceRequest.find({});
-            } else {
-                const provider = await Provider.findOne({ userId: req.user._id });
-                requests = await ServiceRequest.find({ providerId: provider._id });
-            }
-        } else if (req.user.role === 'admin') {
+        } else if (req.user.role === 'admin' || req.user.role === 'superadmin') {
             if (req.query.view === 'claimed') {
                 requests = await ServiceRequest.find({ claimedBy: req.user._id })
                     .populate('claimedBy', 'name');
@@ -78,7 +70,7 @@ const getServiceRequestById = async (req, res) => {
     try {
         const request = await ServiceRequest.findById(req.params.id)
             .populate('clientId', 'address city')
-            .populate('providerId', 'companyName');
+            .populate('adminId', 'user');
 
         if (!request) {
             return res.status(404).json({ message: 'Request not found' });
@@ -92,8 +84,8 @@ const getServiceRequestById = async (req, res) => {
 
 const claimServiceRequest = async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Only admins can claim orders' });
+        if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+            return res.status(403).json({ message: 'Only admins and superadmins can claim orders' });
         }
 
         const request = await ServiceRequest.findById(req.params.id);
@@ -124,8 +116,8 @@ const updateServiceStatus = async (req, res) => {
             return res.status(404).json({ message: 'Request not found' });
         }
 
-        if (req.user.role === 'admin') {
-            if (request.claimedBy && request.claimedBy.toString() !== req.user._id.toString()) {
+        if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+            if (req.user.role === 'admin' && request.claimedBy && request.claimedBy.toString() !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'Only the admin who claimed this order can update its status' });
             }
             request.status = status;

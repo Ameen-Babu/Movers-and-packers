@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Truck, Clock, CheckCircle, AlertCircle, Star, Tag } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { Truck, Clock, CheckCircle, AlertCircle, Star, Tag, TrendingUp, DollarSign } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
     const [requests, setRequests] = useState([]);
@@ -10,12 +11,16 @@ const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [adminPerformance, setAdminPerformance] = useState(null);
+    const [selectedAdminIdForStats, setSelectedAdminIdForStats] = useState('');
     const [userRole, setUserRole] = useState('');
     const [activeTab, setActiveTab] = useState('requests');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const currentUser = JSON.parse(localStorage.getItem('user'));
+    const isAdmin = ['admin', 'superadmin'].includes(currentUser?.role?.toLowerCase());
+    const isSuperAdmin = currentUser?.role?.toLowerCase() === 'superadmin';
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -47,7 +52,7 @@ const Dashboard = () => {
                     setError(data.message || 'Failed to fetch requests');
                 }
 
-                if (user.role?.toLowerCase() === 'admin') {
+                if (user.role?.toLowerCase() === 'admin' || user.role?.toLowerCase() === 'superadmin') {
                     const pendingRes = await fetch(`${apiBaseUrl}/services?view=pending`, {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
@@ -63,14 +68,23 @@ const Dashboard = () => {
                     });
                     if (usersRes.ok) setUsers(await usersRes.json());
 
-                    const adminPendingRes = await fetch(`${apiBaseUrl}/admin/pending-admins`, {
-                        headers: { 'Authorization': `Bearer ${user.token}` }
-                    });
-                    if (adminPendingRes.ok) setPendingAdmins(await adminPendingRes.json());
+                    if (user.role?.toLowerCase() === 'superadmin') {
+                        const adminPendingRes = await fetch(`${apiBaseUrl}/admin/pending-admins`, {
+                            headers: { 'Authorization': `Bearer ${user.token}` }
+                        });
+                        if (adminPendingRes.ok) setPendingAdmins(await adminPendingRes.json());
+                    }
+
                     const claimedRes = await fetch(`${apiBaseUrl}/services?view=claimed`, {
                         headers: { 'Authorization': `Bearer ${user.token}` }
                     });
                     if (claimedRes.ok) setClaimedRequests(await claimedRes.json());
+
+                    // Initial performance fetch for the current user
+                    const perfRes = await fetch(`${apiBaseUrl}/admin/my-performance`, {
+                        headers: { 'Authorization': `Bearer ${user.token}` }
+                    });
+                    if (perfRes.ok) setAdminPerformance(await perfRes.json());
                 }
             } catch (err) {
                 setError('Connection error');
@@ -81,6 +95,22 @@ const Dashboard = () => {
 
         fetchRequests();
     }, []);
+
+    const fetchSpecificAdminPerformance = async (adminId) => {
+        setSelectedAdminIdForStats(adminId);
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) return;
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const query = adminId ? `?adminId=${adminId}` : '';
+            const perfRes = await fetch(`${apiBaseUrl}/admin/my-performance${query}`, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (perfRes.ok) setAdminPerformance(await perfRes.json());
+        } catch (err) {
+            console.error('Failed to fetch performance stats', err);
+        }
+    };
 
     const getStatusIcon = (status) => {
         if (status === 'accepted') return <CheckCircle className="status-icon accepted" />;
@@ -114,6 +144,31 @@ const Dashboard = () => {
                 setUsers(users.map(u => u._id === id ? { ...u, isActive: data.isActive } : u));
             } else {
                 alert('Action failed');
+            }
+        } catch (err) {
+            alert('Action failed');
+        }
+    };
+
+    const handleUpdateRole = async (id, newRole) => {
+        if (!window.confirm(`Are you sure you want to change this user's role to ${newRole}?`)) return;
+        const user = JSON.parse(localStorage.getItem('user'));
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${apiBaseUrl}/admin/users/${id}/role`, {
+                method: 'PATCH',
+                headers: { 
+                    'Authorization': `Bearer ${user.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ role: newRole })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setUsers(users.map(u => u._id === id ? { ...u, role: data.user.role } : u));
+            } else {
+                const errorData = await res.json();
+                alert(errorData.message || 'Action failed');
             }
         } catch (err) {
             alert('Action failed');
@@ -264,7 +319,7 @@ const Dashboard = () => {
                     </div>
                     <div className="info-item">
                         <small>PRICE</small>
-                        <p>₹{req.estimatedPrice}</p>
+                        <p>&#8377;{req.estimatedPrice}</p>
                     </div>
                 </div>
             </div>
@@ -272,7 +327,7 @@ const Dashboard = () => {
             <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
 
-                {userRole === 'admin' && (
+                {(userRole === 'admin' || userRole === 'superadmin') && (
                     <button
                         className="btn-outline"
                         style={{ color: '#ff4d4d', borderColor: '#ff4d4d', borderRadius: '50px', padding: '8px 25px', fontSize: '0.9rem', marginLeft: 'auto' }}
@@ -296,22 +351,22 @@ const Dashboard = () => {
             <div className="container">
                 <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <div>
-                        {['admin', 'provider'].includes(userRole?.toLowerCase()) ? (
+                        {['admin', 'superadmin'].includes(userRole?.toLowerCase()) ? (
                             <h2 style={{ textTransform: 'capitalize' }}>{userRole} <span className="highlight">Dashboard</span></h2>
                         ) : (
                             <h2>Your <span className="highlight">Orders</span></h2>
                         )}
-                        <p>{['admin', 'provider'].includes(userRole?.toLowerCase()) ? 'Manage platform activity and orders' : 'Track your active moves and past requests'}</p>
+                        <p>{['admin', 'superadmin'].includes(userRole?.toLowerCase()) ? 'Manage platform activity and orders' : 'Track your active moves and past requests'}</p>
                     </div>
                     <span className="user-role-badge" style={{ background: 'var(--primary)', color: 'var(--white)', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
                         {userRole || 'User'} Mode
                     </span>
                 </div>
 
-                {['admin', 'provider'].includes(userRole?.toLowerCase()) && (
+                {(['admin', 'superadmin'].includes(userRole?.toLowerCase())) && (
                     <div className="admin-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
                         <button className={`btn-outline-sm ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>All Orders</button>
-                        {userRole?.toLowerCase() === 'admin' && (
+                        {(['admin', 'superadmin'].includes(userRole?.toLowerCase())) && (
                             <>
                                 <button
                                     className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`}
@@ -337,12 +392,15 @@ const Dashboard = () => {
                                         </span>
                                     )}
                                 </button>
-                                <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Customers</button>
+                                <button className={`btn-outline-sm ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Users</button>
+                                {isSuperAdmin && (
                                 <button className={`btn-outline-sm ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')} style={{ position: 'relative' }}>
                                     Pending Admins
                                     {pendingAdmins.length > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff4d4d', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingAdmins.length}</span>}
                                 </button>
-                                <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Dashboard</button>
+                                )}
+                                <button className={`btn-outline-sm ${activeTab === 'performance' ? 'active' : ''}`} onClick={() => setActiveTab('performance')}>Analytics</button>
+                                <button className={`btn-outline-sm ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Platform Overview</button>
                             </>
                         )}
                     </div>
@@ -394,7 +452,7 @@ const Dashboard = () => {
                                             <div className="info-item"><small>TO</small><p>{req.dropoffLocation}</p></div>
                                             <div className="info-split">
                                                 <div className="info-item"><small>DATE</small><p>{new Date(req.movingDate).toLocaleDateString()}</p></div>
-                                                <div className="info-item"><small>PRICE</small><p>₹{req.estimatedPrice}</p></div>
+                                                <div className="info-item"><small>PRICE</small><p>&#8377;{req.estimatedPrice}</p></div>
                                             </div>
                                         </div>
                                         <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -452,7 +510,7 @@ const Dashboard = () => {
                                                 </div>
                                                 <div className="info-item">
                                                     <small>PRICE</small>
-                                                    <p>₹{req.estimatedPrice}</p>
+                                                    <p>&#8377;{req.estimatedPrice}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -517,7 +575,35 @@ const Dashboard = () => {
                                             </div>
                                         </td>
                                         <td>{u.email}</td>
-                                        <td><span className="status-badge" style={{ background: u.role === 'admin' ? 'var(--primary)' : 'var(--bg-light)', color: u.role === 'admin' ? 'var(--white)' : 'var(--text-muted)', borderRadius: '50px' }}>{u.role}</span></td>
+                                        <td>
+                                            {isSuperAdmin && u._id !== JSON.parse(localStorage.getItem('user'))?._id ? (
+                                                <select
+                                                    value={u.role}
+                                                    onChange={(e) => handleUpdateRole(u._id, e.target.value)}
+                                                    style={{ 
+                                                        padding: '6px 30px 6px 15px', 
+                                                        borderRadius: '50px', 
+                                                        border: '1px solid var(--border-color)',
+                                                        fontSize: '0.85rem',
+                                                        background: (u.role === 'admin' || u.role === 'superadmin') ? 'var(--primary)' : 'var(--bg-light)',
+                                                        color: (u.role === 'admin' || u.role === 'superadmin') ? 'var(--white)' : 'var(--text-muted)',
+                                                        cursor: 'pointer',
+                                                        width: 'max-content',
+                                                        appearance: 'none',
+                                                        backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundPosition: 'right 10px center',
+                                                        backgroundSize: '14px'
+                                                    }}
+                                                >
+                                                    <option value="client" style={{ color: 'var(--text-color)', background: 'white' }}>client</option>
+                                                    <option value="admin" style={{ color: 'var(--text-color)', background: 'white' }}>admin</option>
+                                                    <option value="superadmin" style={{ color: 'var(--text-color)', background: 'white' }}>superadmin</option>
+                                                </select>
+                                            ) : (
+                                                <span className="status-badge" style={{ background: (u.role === 'admin' || u.role === 'superadmin') ? 'var(--primary)' : 'var(--bg-light)', color: (u.role === 'admin' || u.role === 'superadmin') ? 'var(--white)' : 'var(--text-muted)', borderRadius: '50px' }}>{u.role}</span>
+                                            )}
+                                        </td>
                                         <td>
                                             <button
                                                 className="btn-outline"
@@ -529,7 +615,7 @@ const Dashboard = () => {
                                                     borderColor: u.isActive === false ? '#22c55e' : '#ff4d4d',
                                                 }}
                                                 onClick={() => handleToggleUserStatus(u._id, u.isActive !== false)}
-                                                disabled={u.role === 'admin'}
+                                                disabled={u.role === 'admin' || u.role === 'superadmin'}
                                             >{u.isActive === false ? 'Activate' : 'Deactivate'}</button>
                                         </td>
                                     </tr>
@@ -576,6 +662,93 @@ const Dashboard = () => {
                             </table>
                         )}
                     </div>
+                ) : activeTab === 'performance' ? (
+                    <div className="performance-view">
+                        
+                        {isSuperAdmin && (
+                            <div className="glass-card" style={{ marginBottom: '20px', padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderRadius: '15px' }}>
+                                <label style={{ fontWeight: '600', color: 'var(--secondary)' }}>Select Admin to View:</label>
+                                <select
+                                    style={{
+                                        padding: '10px 15px',
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border-color)',
+                                        background: 'var(--bg-light)',
+                                        color: 'var(--text-main)',
+                                        outline: 'none',
+                                        minWidth: '250px',
+                                        cursor: 'pointer'
+                                    }}
+                                    value={selectedAdminIdForStats}
+                                    onChange={(e) => fetchSpecificAdminPerformance(e.target.value)}
+                                >
+                                    <option value="">{currentUser?.name} (You)</option>
+                                    {users.filter(u => u.role === 'admin' || u.role === 'superadmin')
+                                        .filter(u => u.email !== currentUser?.email)
+                                        .map(u => (
+                                            <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
+                        )}
+
+                        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+                            <div className="stat-card glass-card p-30" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <div style={{ background: 'rgba(247, 183, 51, 0.2)', padding: '20px', borderRadius: '20px', color: 'var(--primary)' }}>
+                                    <CheckCircle size={32} />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '2rem', marginBottom: '5px' }}>{adminPerformance?.totalCompleted || 0}</h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Jobs Completed</p>
+                                </div>
+                            </div>
+                            <div className="stat-card glass-card p-30" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <div style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '20px', borderRadius: '20px', color: '#22c55e' }}>
+                                    <DollarSign size={32} />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '2rem', marginBottom: '5px' }}>&#8377;{adminPerformance?.totalRevenue?.toLocaleString() || 0}</h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Revenue</p>
+                                </div>
+                            </div>
+                            <div className="stat-card glass-card p-30" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <div style={{ background: 'rgba(56, 189, 248, 0.2)', padding: '20px', borderRadius: '20px', color: '#38bdf8' }}>
+                                    <TrendingUp size={32} />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '2rem', marginBottom: '5px' }}>
+                                        {adminPerformance?.chartData?.length ? 
+                                            adminPerformance.chartData[adminPerformance.chartData.length - 1].jobs 
+                                        : 0}
+                                    </h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Jobs Today</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="chart-container glass-card p-30" style={{ height: '400px', width: '100%', paddingBottom: '70px' }}>
+                            <h3 style={{ marginBottom: '25px', color: 'var(--secondary)' }}>Performance Timeline</h3>
+                            {adminPerformance?.chartData && adminPerformance.chartData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={adminPerformance.chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                                        <XAxis dataKey="date" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                                        <YAxis yAxisId="left" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} tickFormatter={(val) => Math.round(val)} />
+                                        <Tooltip 
+                                            contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '15px', color: 'var(--text-main)' }}
+                                            itemStyle={{ color: 'var(--primary)', fontWeight: 'bold' }}
+                                        />
+                                        <Line yAxisId="left" type="monotone" dataKey="jobs" stroke="var(--primary)" strokeWidth={4} dot={{ r: 6, fill: 'var(--bg-body)', strokeWidth: 3 }} activeDot={{ r: 8 }} name="Jobs Completed" />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                                    No performance data available yet.
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 ) : activeTab === 'stats' ? (
                     <div className="stats-view grid-3">
                         <div className="glass-card p-30 text-center">
@@ -585,10 +758,6 @@ const Dashboard = () => {
                         <div className="glass-card p-30 text-center">
                             <small>TOTAL BOOKINGS</small>
                             <h2 style={{ fontSize: '3rem', margin: '10px 0' }}>{stats?.serviceRequests || 0}</h2>
-                        </div>
-                        <div className="glass-card p-30 text-center">
-                            <small>PROVIDERS</small>
-                            <h2 style={{ fontSize: '3rem', margin: '10px 0' }}>{stats?.providers || 0}</h2>
                         </div>
                     </div>
                 ) : null}
@@ -629,23 +798,23 @@ const Dashboard = () => {
                                 </div>
                                 <div className="modal-item">
                                     <small>ESTIMATED PRICE</small>
-                                    <p style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: '700' }}>₹{selectedRequest.estimatedPrice}</p>
+                                    <p style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: '700' }}>&#8377;{selectedRequest.estimatedPrice}</p>
                                 </div>
                                 {selectedRequest.claimedBy && (
                                     <div className="modal-item">
                                         <small>STATUS</small>
                                         <p style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                                            {isClaimedByMe(selectedRequest) ? '✅ Claimed by you' : `🔒 Claimed by ${selectedRequest.claimedBy?.name || 'another admin'}`}
+                                            {isClaimedByMe(selectedRequest) ? 'Ã¢Å“â€¦ Claimed by you' : `Ã°Å¸â€â€™ Claimed by ${selectedRequest.claimedBy?.name || 'another admin'}`}
                                         </p>
                                     </div>
                                 )}
                             </div>
 
                             <div className="status-management" style={{ borderTop: '2px solid var(--bg-light)', paddingTop: '30px' }}>
-                                {userRole === 'admin' ? (
+                                {(userRole === 'admin' || userRole === 'superadmin') ? (
                                     <>
-                                        
-                                        {isClaimedByMe(selectedRequest) ? (
+                                        {/* superadmin can manage ANY order's status, admin only their claimed ones */}
+                                        {(isSuperAdmin || isClaimedByMe(selectedRequest)) ? (
                                             <>
                                                 <small style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '15px', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Manage Status</small>
                                                 <div className="status-btns" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -662,7 +831,7 @@ const Dashboard = () => {
                                             </>
                                         ) : selectedRequest.claimedBy ? (
                                             <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
-                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>🔒 This order has been claimed by another admin. Only they can update the status.</p>
+                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Ã°Å¸â€â€™ This order has been claimed by another admin. Only they can update the status.</p>
                                             </div>
                                         ) : (
                                             <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
@@ -686,7 +855,7 @@ const Dashboard = () => {
                                 )}
                             </div>
 
-                            {userRole === 'admin' && (
+                            {(userRole === 'admin' || userRole === 'superadmin') && (
                                 <div style={{ marginTop: '40px', borderTop: '1px solid var(--border-color)', paddingTop: '20px', textAlign: 'right' }}>
                                     <button
                                         className="btn-outline"
@@ -706,3 +875,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

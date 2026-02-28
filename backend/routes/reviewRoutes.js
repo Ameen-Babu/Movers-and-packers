@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createReview, getProviderReviews } = require('../controllers/reviewController');
+const { createReview, getAdminReviews } = require('../controllers/reviewController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/', protect, createReview);
-router.get('/provider/:providerId', getProviderReviews);
+router.get('/admin/:adminId', getAdminReviews);
 
 module.exports = router;
