@@ -28,4 +28,3 @@ const ThemeToggle = () => {
 };
 
 export default ThemeToggle;
-// simple theme toggle

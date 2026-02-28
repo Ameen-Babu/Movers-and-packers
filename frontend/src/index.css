@@ -168,7 +168,6 @@ button {
   color: #000000 !important;
 }
 
-/* Base Styles for Small Buttons */
 .btn-primary-sm,
 .btn-outline-sm {
   padding: 8px 20px;
@@ -448,7 +447,6 @@ button {
   margin-top: 5px;
 }
 
-/* Price Breakdown */
 .price-breakdown {
   margin: 25px 0;
   border-radius: 20px;
@@ -860,7 +858,6 @@ button {
   border-color: var(--primary);
 }
 
-/* Standard Date Input */
 input[type="date"] {
   cursor: pointer;
 }
@@ -903,7 +900,6 @@ input[type="date"] {
   font-weight: 700;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
   .nav-links {
     position: fixed;
@@ -963,7 +959,6 @@ input[type="date"] {
   }
 }
 
-/* Admin & Dashboard Features */
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1001,7 +996,6 @@ input[type="date"] {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Modal Styling */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1057,12 +1051,10 @@ input[type="date"] {
   border-color: var(--primary);
 }
 
-/* Profile Dropdown */
 .profile-menu-item:hover {
   background: var(--bg-light);
 }
 
-/* Mobile Specific Enhancements for 375x812 (iPhone X/12/13/14) */
 @media (max-width: 480px) {
   .container {
     padding: 0 15px;
@@ -1109,7 +1101,6 @@ input[type="date"] {
     gap: 15px;
   }
 
-  /* Table responsiveness */
   .users-list {
     margin: 0 -15px;
     border-radius: 0;
@@ -1119,7 +1110,6 @@ input[type="date"] {
     min-width: 500px;
   }
 
-  /* Modal responsiveness */
   .modal-content {
     padding: 30px 20px;
     border-radius: 30px;
@@ -1145,7 +1135,6 @@ input[type="date"] {
   }
 }
 
-/* About Page Specific Styles */
 .about-content {
   padding: 60px;
   margin-top: 40px;
@@ -1245,7 +1234,6 @@ input[type="date"] {
   color: var(--text-muted);
 }
 
-/* Mobile Perfection for About Page (375x812) */
 @media (max-width: 480px) {
   .about-content {
     padding: 35px 20px;
@@ -1319,7 +1307,6 @@ input[type="date"] {
   }
 }
 
-/* Booking Page Mobile Perfection (375x812) */
 @media (max-width: 480px) {
   .booking-container {
     padding: 30px 20px;
@@ -1355,7 +1342,6 @@ input[type="date"] {
   }
 }
 
-/* Contact Page Styles */
 .contact-grid {
   display: grid;
   grid-template-columns: 0.4fr 0.6fr;
@@ -1423,7 +1409,6 @@ input[type="date"] {
   box-shadow: 0 0 0 2px rgba(247, 183, 51, 0.1);
 }
 
-/* Mobile Perfection for Contact (375x812) */
 @media (max-width: 480px) {
   .contact-grid {
     grid-template-columns: 1fr;

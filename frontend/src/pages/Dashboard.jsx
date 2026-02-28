@@ -783,10 +783,8 @@ const Dashboard = () => {
                                             minTickGap={20}
                                         />
                                         
-                                        {/* Left Y-Axis for Jobs */}
                                         <YAxis yAxisId="left" orientation="left" stroke="var(--primary)" tick={{ fill: 'var(--primary)' }} axisLine={false} tickLine={false} tickFormatter={(val) => Math.round(val)} />
                                         
-                                        {/* Right Y-Axis for Revenue */}
                                         <YAxis yAxisId="right" orientation="right" stroke="#22c55e" tick={{ fill: '#22c55e' }} axisLine={false} tickLine={false} tickFormatter={(val) => `₹${val.toLocaleString()}`} />
                                         
                                         <Tooltip 

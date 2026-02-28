@@ -1,4 +1,3 @@
-// user orders
 import React, { useState, useEffect } from 'react';
 import { Truck, Clock, CheckCircle, AlertCircle, Star, Tag } from 'lucide-react';
 
@@ -99,7 +98,6 @@ const Orders = () => {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             if (res.ok) {
-                // Remove from unclaimed list since it's now claimed
                 setRequests(requests.filter(r => r._id !== id));
                 setIsModalOpen(false);
                 alert('Order claimed successfully! Find it in your Dashboard → Claimed Orders.');
@@ -195,7 +193,6 @@ const Orders = () => {
                                 <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                                     <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
 
-                                    {/* Admin: Claim button for unclaimed orders */}
                                     {user?.role === 'admin' && !req.claimedBy && (
                                         <button
                                             className="btn-primary-sm"
@@ -261,7 +258,6 @@ const Orders = () => {
                             </div>
 
                             <div className="status-management" style={{ borderTop: '2px solid var(--bg-light)', paddingTop: '30px' }}>
-                                {/* Admin: show Claim button in modal for unclaimed orders (no status controls yet) */}
                                 {user?.role === 'admin' && !selectedRequest.claimedBy && (
                                     <div style={{ textAlign: 'center' }}>
                                         <button

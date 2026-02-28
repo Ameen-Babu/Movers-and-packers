@@ -28,10 +28,10 @@ const Booking = () => {
         const base = baseRates[type] || 3000;
         const distCost = dist * 18;
         const isPackage = type === 'house-shift' || type === 'office-shift';
-        const weightCost = isPackage ? 0 : (wt * 5); // ₹5 per kg
+        const weightCost = isPackage ? 0 : (wt * 5); 
 
         const subtotal = base + distCost + weightCost;
-        const tax = subtotal * 0.05; // 5% GST
+        const tax = subtotal * 0.05; 
         return Math.round(subtotal + tax);
     };
     useEffect(() => {
