@@ -83,9 +83,6 @@ const Login = () => {
                             {loading ? 'Logging in...' : 'LOGIN'}
                         </button>
                     </form>
-
-
-
                     <p className="auth-footer">
                         Don't have an account? <Link to="/signup">Sign Up</Link>
                     </p>

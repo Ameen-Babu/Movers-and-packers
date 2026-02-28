@@ -10,11 +10,7 @@ const generateToken = (id) => {
         expiresIn: '30d',
     });
 };
-
-
 const Admin = require('../models/Admin');
-
-
 const registerUser = async (req, res) => {
     try {
         const { name, email, password, role, phone, address, city, pincode, companyName, licenseNo } = req.body;
@@ -86,8 +82,6 @@ const registerUser = async (req, res) => {
         res.status(400).json({ message: 'Invalid user data', error: error.message });
     }
 };
-
-
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -116,6 +110,7 @@ const loginUser = async (req, res) => {
             email: user.email,
             role: user.role,
             phone: user.phone,
+            isApproved: user.isApproved,
             ...(profileData ? profileData.toObject() : {}),
             token: generateToken(user.id),
         });
@@ -123,8 +118,6 @@ const loginUser = async (req, res) => {
         res.status(400).json({ message: 'Invalid credentials' });
     }
 };
-
-
 const getMe = async (req, res) => {
     let profileData = {};
     if (req.user.role === 'client') {
@@ -139,6 +132,7 @@ const getMe = async (req, res) => {
         email: req.user.email,
         role: req.user.role,
         phone: req.user.phone,
+        isApproved: req.user.isApproved,
         ...(profileData ? profileData.toObject() : {}),
     });
 };

@@ -1,12 +1,8 @@
-// admin side
 const User = require('../models/User');
 const Client = require('../models/Client');
 const Admin = require('../models/Admin');
 const ServiceRequest = require('../models/ServiceRequest');
 const Payment = require('../models/Payment');
-
-
-
 const getAllUsers = async (req, res) => {
     try {
         const users = await User.find({}).select('-passwordHash');
@@ -16,9 +12,7 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-
-
-const getStats = async (req, res) => {
+const getNotifications = async (req, res) => {
     try {
         const userCount = await User.countDocuments();
         const clientCount = await Client.countDocuments();
@@ -131,54 +125,92 @@ const getAdminPerformance = async (req, res) => {
     try {
         let targetAdminId = req.user._id;
 
-        // If superadmin requests another admin's stats
-        if (req.user.role === 'superadmin' && req.query.adminId) {
-             targetAdminId = req.query.adminId;
+        let daysToLoop = 7;
+        if (timeRange === '7d') {
+            daysToLoop = 7;
+            const d = new Date();
+            d.setDate(d.getDate() - 7);
+            dateFilter = { $gte: d };
+        } else if (timeRange === '30d') {
+            daysToLoop = 30;
+            const d = new Date();
+            d.setDate(d.getDate() - 29);
+            dateFilter = { $gte: d };
+        } else if (timeRange === '6m') {
+            // "6m" actually means Last 6 Months now.
+            const d = new Date();
+            d.setMonth(d.getMonth() - 5);
+            d.setDate(1); // Start of the 6th month ago
+            dateFilter = { $gte: d };
         }
 
         // Fetch completed requests claimed by this admin
-        const completedRequests = await ServiceRequest.find({
+        const query = {
             claimedBy: targetAdminId,
-            status: 'completed'
-        });
+            status: 'completed',
+            updatedAt: dateFilter
+        };
+
+        const completedRequests = await ServiceRequest.find(query).sort({ updatedAt: 1 });
 
         const totalCompleted = completedRequests.length;
 
-        // Calculate total revenue from these completed requests (using Payments if available, or estimatedPrice)
+        // Calculate total revenue from these completed requests
         let totalRevenue = 0;
         completedRequests.forEach(req => {
             totalRevenue += req.estimatedPrice || 0;
         });
 
-        // Generate simple chart data mapping dates to completed jobs and revenue
         const chartDataMap = {};
+        const today = new Date();
+        if (timeRange === '6m') {
+            let startMonth = new Date(today.getFullYear(), today.getMonth() - 5, 1); 
 
-        completedRequests.forEach(req => {
-            // Using updatedAt as completion date approximation
-            const date = new Date(req.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            if (!chartDataMap[date]) {
-                chartDataMap[date] = { date, jobs: 0, revenue: 0 };
+            // Loop month by month up to current month inclusive
+            const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            let loopDate = new Date(startMonth);
+            
+            while (loopDate <= currentMonth) {
+                const key = `${loopDate.getFullYear()}-${String(loopDate.getMonth() + 1).padStart(2, '0')}`;
+                const dateStr = loopDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                chartDataMap[key] = { date: dateStr, jobs: 0, revenue: 0, sortKey: key };
+                
+                // Move to next month
+                loopDate.setMonth(loopDate.getMonth() + 1);
             }
-            chartDataMap[date].jobs += 1;
-            chartDataMap[date].revenue += (req.estimatedPrice || 0);
-        });
 
-        // Convert map to sorted array
-        const chartData = Object.values(chartDataMap).sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        // Create some empty dates if there's no data to make graph look better
-        if (chartData.length === 0) {
-            const today = new Date();
-            for(let i=4; i>=0; i--) {
+            // Fill with actual data
+            completedRequests.forEach(req => {
+                const d = new Date(req.updatedAt);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (chartDataMap[key]) {
+                     chartDataMap[key].jobs += 1;
+                     chartDataMap[key].revenue += (req.estimatedPrice || 0);
+                }
+            });
+        } else {
+            for (let i = daysToLoop - 1; i >= 0; i--) {
                 const d = new Date(today);
                 d.setDate(d.getDate() - i);
-                chartData.push({
-                    date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    jobs: 0,
-                    revenue: 0
-                });
+                const key = d.toISOString().split('T')[0]; // YYYY-MM-DD
+                const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                chartDataMap[key] = { date: dateStr, jobs: 0, revenue: 0, sortKey: key };
             }
+
+            completedRequests.forEach(req => {
+                const d = new Date(req.updatedAt);
+                const key = d.toISOString().split('T')[0];
+                
+                if (chartDataMap[key]) {
+                    chartDataMap[key].jobs += 1;
+                    chartDataMap[key].revenue += (req.estimatedPrice || 0);
+                }
+            });
         }
+
+        // Convert map to sorted array based on sortKey
+        const chartData = Object.values(chartDataMap).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
         res.status(200).json({
             totalCompleted,

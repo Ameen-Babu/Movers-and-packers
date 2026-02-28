@@ -1,9 +1,6 @@
 const Review = require('../models/Review');
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
-
-
-
 const createReview = async (req, res) => {
     try {
         const { requestId, rating, comment } = req.body;
@@ -38,9 +35,6 @@ const createReview = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
-
-
 const getAdminReviews = async (req, res) => {
     try {
         const reviews = await Review.find({ adminId: req.params.adminId })

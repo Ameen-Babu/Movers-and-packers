@@ -47,7 +47,9 @@ const getServiceRequests = async (req, res) => {
             const client = await Client.findOne({ userId: req.user._id });
             requests = await ServiceRequest.find({ clientId: client._id });
         } else if (req.user.role === 'admin' || req.user.role === 'superadmin') {
-            if (req.query.view === 'claimed') {
+            if (req.user.role === 'admin' && !req.user.isApproved) {
+                requests = [];
+            } else if (req.query.view === 'claimed') {
                 requests = await ServiceRequest.find({ claimedBy: req.user._id })
                     .populate('claimedBy', 'name');
             } else if (req.query.view === 'pending') {
@@ -88,6 +90,10 @@ const claimServiceRequest = async (req, res) => {
             return res.status(403).json({ message: 'Only admins and superadmins can claim orders' });
         }
 
+        if (req.user.role === 'admin' && !req.user.isApproved) {
+            return res.status(403).json({ message: 'Your account is pending approval' });
+        }
+
         const request = await ServiceRequest.findById(req.params.id);
         if (!request) {
             return res.status(404).json({ message: 'Request not found' });
@@ -117,6 +123,9 @@ const updateServiceStatus = async (req, res) => {
         }
 
         if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+            if (req.user.role === 'admin' && !req.user.isApproved) {
+                return res.status(403).json({ message: 'Your account is pending approval' });
+            }
             if (req.user.role === 'admin' && request.claimedBy && request.claimedBy.toString() !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'Only the admin who claimed this order can update its status' });
             }
