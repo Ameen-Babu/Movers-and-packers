@@ -28,22 +28,22 @@ const protect = async (req, res, next) => {
     }
 };
 
-// admin check
+// admin or superadmin check
 const admin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
         next();
     } else {
         res.status(401).json({ message: 'Not authorized as an admin' });
     }
 };
 
-// admin or provider check
-const adminOrProvider = (req, res, next) => {
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'provider')) {
+// superadmin only check
+const superadmin = (req, res, next) => {
+    if (req.user && req.user.role === 'superadmin') {
         next();
     } else {
-        res.status(401).json({ message: 'Not authorized as admin or provider' });
+        res.status(403).json({ message: 'Not authorized as superadmin' });
     }
 };
 
-module.exports = { protect, admin, adminOrProvider };
+module.exports = { protect, admin, superadmin };

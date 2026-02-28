@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const AdminSignup = () => {
@@ -63,7 +63,7 @@ const AdminSignup = () => {
         <div className="auth-page">
             <div className="auth-container">
                 <div className="auth-card signup-card">
-                    <h2>ADMIN SIGNUP</h2>
+                    <h2>{formData.role === 'superadmin' ? 'SUPER ADMIN SIGNUP' : 'ADMIN SIGNUP'}</h2>
                     {error && <div className="auth-error">{error}</div>}
                     {success && <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '15px', borderRadius: '12px', marginBottom: '20px', textAlign: 'center' }}>{success}</div>}
                     <form className="auth-form" onSubmit={handleSubmit}>
@@ -90,6 +90,15 @@ const AdminSignup = () => {
                             </div>
 
                             <div className="form-group">
+                                <label>ROLE</label>
+                                <div className="input-wrapper">
+                                    <select name="role" value={formData.role} onChange={handleChange} className="auth-select">
+                                        <option value="admin">Admin</option>
+                                        <option value="superadmin">Super Admin</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="form-group">
                                 <label>PASSWORD</label>
                                 <div className="input-wrapper">
                                     <input name="password" type="password" placeholder="********" required onChange={handleChange} />
@@ -105,7 +114,7 @@ const AdminSignup = () => {
                         </div>
 
                         <button type="submit" className="auth-btn" disabled={loading}>
-                            {loading ? 'Processing...' : 'CREATE ADMIN ACCOUNT'}
+                            {loading ? 'Processing...' : `CREATE ${formData.role === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN'} ACCOUNT`}
                         </button>
                     </form>
 
@@ -119,3 +128,5 @@ const AdminSignup = () => {
 };
 
 export default AdminSignup;
+
+

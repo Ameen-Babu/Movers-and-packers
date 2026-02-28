@@ -40,7 +40,7 @@ const registerUser = async (req, res) => {
             passwordHash: hashedPassword,
             phone,
             role,
-            isApproved: role === 'admin' ? false : true,
+            isApproved: (role === 'admin' || role === 'superadmin') ? false : true,
         });
 
 
@@ -55,7 +55,7 @@ const registerUser = async (req, res) => {
                 city,
                 pincode,
             });
-        } else if (role === 'admin') {
+        } else if (role === 'admin' || role === 'superadmin') {
             await Admin.create({
                 userId: user._id,
             });
@@ -65,7 +65,7 @@ const registerUser = async (req, res) => {
             sendWelcomeEmail({ to: user.email, name: user.name, role: user.role })
                 .catch((err) => console.error('Welcome email failed:', err.message));
 
-            if (role === 'admin') {
+            if (role === 'admin' || role === 'superadmin') {
                 res.status(201).json({
                     message: 'Admin registration submitted. Please wait for approval from an existing admin.',
                     pending: true,
@@ -106,7 +106,7 @@ const loginUser = async (req, res) => {
         let profileData = {};
         if (user.role === 'client') {
             profileData = await Client.findOne({ userId: user._id });
-        } else if (user.role === 'admin') {
+        } else if (user.role === 'admin' || user.role === 'superadmin') {
             profileData = await Admin.findOne({ userId: user._id });
         }
 
@@ -129,7 +129,7 @@ const getMe = async (req, res) => {
     let profileData = {};
     if (req.user.role === 'client') {
         profileData = await Client.findOne({ userId: req.user._id });
-    } else if (req.user.role === 'admin') {
+    } else if (req.user.role === 'admin' || req.user.role === 'superadmin') {
         profileData = await Admin.findOne({ userId: req.user._id });
     }
 

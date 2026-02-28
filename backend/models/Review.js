@@ -12,9 +12,9 @@ const reviewSchema = new mongoose.Schema({
         ref: 'Client',
         required: true,
     },
-    providerId: {
+    adminId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Provider',
+        ref: 'Admin',
         required: false,
     },
     rating: {

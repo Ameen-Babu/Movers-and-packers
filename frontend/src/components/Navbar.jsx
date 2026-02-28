@@ -121,7 +121,7 @@ const Navbar = () => {
                       >
                         <User size={16} /> Profile
                       </Link>
-                      {['client', 'provider'].includes(user.role?.trim().toLowerCase()) && (
+                      {['client'].includes(user.role?.trim().toLowerCase()) && (
                         <Link
                           to="/orders"
                           className="profile-menu-item"
@@ -140,7 +140,7 @@ const Navbar = () => {
                           <Truck size={16} /> Orders
                         </Link>
                       )}
-                      {['admin', 'provider'].includes(user.role?.trim().toLowerCase()) && (
+                      {['admin', 'superadmin'].includes(user.role?.trim().toLowerCase()) && (
                         <Link
                           to="/dashboard"
                           className="profile-menu-item"

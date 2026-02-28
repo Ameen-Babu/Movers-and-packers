@@ -25,7 +25,7 @@ const sendWelcomeEmail = async ({ to, name, role }) => {
               Your account has been successfully created as a <strong>${roleLabel}</strong>.
               You can now log in and start using our platform.
             </p>
-            ${role === 'provider' ? `<p style="color:#444;line-height:1.6;">As a provider, you can browse and accept service requests from clients once you log in.</p>` : ''}
+            ${role === 'admin' || role === 'superadmin' ? `<p style="color:#444;line-height:1.6;">As an admin, you can browse and manage service requests once your account is approved.</p>` : ''}
             ${role === 'admin' ? `<p style="color:#e67e22;line-height:1.6;"><strong>Note:</strong> Your admin account is pending approval from an existing administrator.</p>` : ''}
             <div style="text-align:center;margin-top:28px;">
               <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login"
@@ -85,7 +85,7 @@ const sendOrderCreatedEmail = async ({ to, name, order }) => {
               </tr>` : ''}
             </table>
             <p style="color:#444;margin-top:20px;line-height:1.6;">
-              We will notify you once a provider accepts your request. You can track your order anytime from your dashboard.
+              We will notify you once an admin is assigned to your request. You can track your order anytime from your dashboard.
             </p>
           </div>
           <div style="background:#f5f5f5;padding:16px;text-align:center;color:#999;font-size:12px;">

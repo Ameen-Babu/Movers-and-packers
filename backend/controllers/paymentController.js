@@ -70,7 +70,7 @@ const verifyPayment = async (req, res) => {
             const payment = await Payment.create({
                 requestId,
                 clientId: client._id,
-                providerId: serviceReq.providerId || null,
+                adminId: serviceReq.adminId || null,
                 amount: serviceReq.estimatedPrice,
                 method: 'razorpay',
                 transactionId: razorpay_payment_id,
@@ -97,7 +97,7 @@ const getPaymentDetails = async (req, res) => {
     try {
         const payment = await Payment.findById(req.params.id)
             .populate('requestId')
-            .populate('providerId', 'companyName');
+            .populate('adminId', 'user');
 
         if (!payment) {
             return res.status(404).json({ message: 'Payment record not found' });

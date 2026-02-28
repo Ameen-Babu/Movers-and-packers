@@ -6,9 +6,9 @@ const serviceRequestSchema = new mongoose.Schema({
         ref: 'Client',
         required: true,
     },
-    providerId: {
+    adminId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Provider',
+        ref: 'Admin',
     },
     pickupLocation: {
         type: String,
