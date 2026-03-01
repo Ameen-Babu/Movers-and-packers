@@ -502,8 +502,8 @@ const Dashboard = () => {
                                     <Tag size={40} color="var(--primary)" />
                                 </div>
                                 <h3 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>No claimed orders yet</h3>
-                                <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>Go to the Orders page to claim pending orders and start managing them here.</p>
-                                <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.href = '/orders'}>Browse Unclaimed Orders</button>
+                                <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>Go to the Pending Orders tab to claim pending orders and start managing them here.</p>
+                                <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => setActiveTab('pending')}>Browse Unclaimed Orders</button>
                             </div>
                         ) : (
                             <div className="requests-grid">
@@ -890,7 +890,7 @@ const Dashboard = () => {
                                             </div>
                                         ) : (
                                             <div style={{ padding: '15px', background: 'var(--bg-light)', borderRadius: '10px', textAlign: 'center' }}>
-                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>This order is unclaimed. Go to the <strong>Orders</strong> page to claim it first.</p>
+                                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>This order is unclaimed. Go to the <strong style={{cursor:'pointer', color:'var(--primary)'}} onClick={() => { setIsModalOpen(false); setActiveTab('pending'); }}>Pending Orders</strong> tab to claim it first.</p>
                                             </div>
                                         )}
                                     </>
