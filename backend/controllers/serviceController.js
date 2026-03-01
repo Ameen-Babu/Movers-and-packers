@@ -45,6 +45,9 @@ const getServiceRequests = async (req, res) => {
         let requests = [];
         if (req.user.role === 'client') {
             const client = await Client.findOne({ userId: req.user._id });
+            if (!client) {
+                return res.status(403).json({ message: 'Client profile not found' });
+            }
             requests = await ServiceRequest.find({ clientId: client._id });
         } else if (req.user.role === 'admin' || req.user.role === 'superadmin') {
             if (req.user.role === 'admin' && !req.user.isApproved) {
