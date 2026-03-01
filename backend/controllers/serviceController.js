@@ -50,7 +50,10 @@ const getServiceRequests = async (req, res) => {
             if (req.user.role === 'admin' && !req.user.isApproved) {
                 requests = [];
             } else if (req.query.view === 'claimed') {
-                requests = await ServiceRequest.find({ claimedBy: req.user._id })
+                requests = await ServiceRequest.find({ 
+                    claimedBy: req.user._id,
+                    status: { $ne: 'completed' }
+                })
                     .populate('claimedBy', 'name');
             } else if (req.query.view === 'pending') {
                 requests = await ServiceRequest.find({
