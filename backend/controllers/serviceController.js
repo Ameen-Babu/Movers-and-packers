@@ -42,7 +42,7 @@ const createServiceRequest = async (req, res) => {
 
 const getServiceRequests = async (req, res) => {
     try {
-        let requests;
+        let requests = [];
         if (req.user.role === 'client') {
             const client = await Client.findOne({ userId: req.user._id });
             requests = await ServiceRequest.find({ clientId: client._id });
