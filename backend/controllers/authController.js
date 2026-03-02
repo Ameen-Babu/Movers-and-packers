@@ -93,7 +93,7 @@ const loginUser = async (req, res) => {
             return res.status(403).json({ message: 'Your admin account is pending approval' });
         }
 
-        if (!user.isActive) {
+        if (user.isActive === false) {
             return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
         }
 
