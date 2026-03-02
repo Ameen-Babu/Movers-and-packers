@@ -15,6 +15,10 @@ const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'User not found' });
             }
 
+            if (!req.user.isActive) {
+                return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
+            }
+
             return next();
         } catch (error) {
             console.error('JWT Verification Error:', error.message);
