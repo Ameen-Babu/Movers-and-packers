@@ -17,11 +17,27 @@ const getStats = async (req, res) => {
         const userCount = await User.countDocuments();
         const clientCount = await Client.countDocuments();
         const requestCount = await ServiceRequest.countDocuments();
+        const pendingCount = await ServiceRequest.countDocuments({ status: 'pending' });
+        const completedCount = await ServiceRequest.countDocuments({ status: 'completed' });
+        const cancelledCount = await ServiceRequest.countDocuments({ status: 'cancelled' });
+        
+        const revenueAggregation = await ServiceRequest.aggregate([
+            { $match: { status: 'completed' } },
+            { $group: { _id: null, total: { $sum: '$estimatedPrice' } } }
+        ]);
+        const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].total : 0;
+        
+        const activeUserCount = await User.countDocuments({ isActive: { $ne: false } });
 
         res.status(200).json({
             users: userCount,
             clients: clientCount,
             serviceRequests: requestCount,
+            pendingRequests: pendingCount,
+            completedRequests: completedCount,
+            cancelledRequests: cancelledCount,
+            totalRevenue: totalRevenue,
+            activeUsers: activeUserCount,
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });

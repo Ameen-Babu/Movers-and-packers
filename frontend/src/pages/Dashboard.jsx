@@ -806,14 +806,34 @@ const Dashboard = () => {
                         </div>
                     </div>
                 ) : activeTab === 'stats' ? (
-                    <div className="stats-view grid-3">
+                    <div className="stats-view" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
                         <div className="glass-card p-30 text-center">
                             <small>TOTAL USERS</small>
-                            <h2 style={{ fontSize: '3rem', margin: '10px 0' }}>{stats?.users || 0}</h2>
+                            <h2 style={{ fontSize: '2.5rem', margin: '10px 0' }}>{stats?.users || 0}</h2>
+                        </div>
+                        <div className="glass-card p-30 text-center">
+                            <small>ACTIVE USERS</small>
+                            <h2 style={{ fontSize: '2.5rem', margin: '10px 0' }}>{stats?.activeUsers || 0}</h2>
                         </div>
                         <div className="glass-card p-30 text-center">
                             <small>TOTAL BOOKINGS</small>
-                            <h2 style={{ fontSize: '3rem', margin: '10px 0' }}>{stats?.serviceRequests || 0}</h2>
+                            <h2 style={{ fontSize: '2.5rem', margin: '10px 0' }}>{stats?.serviceRequests || 0}</h2>
+                        </div>
+                        <div className="glass-card p-30 text-center">
+                            <small>PENDING</small>
+                            <h2 style={{ fontSize: '2.5rem', margin: '10px 0', color: '#f59e0b' }}>{stats?.pendingRequests || 0}</h2>
+                        </div>
+                        <div className="glass-card p-30 text-center">
+                            <small>COMPLETED</small>
+                            <h2 style={{ fontSize: '2.5rem', margin: '10px 0', color: '#22c55e' }}>{stats?.completedRequests || 0}</h2>
+                        </div>
+                        <div className="glass-card p-30 text-center">
+                            <small>CANCELLED</small>
+                            <h2 style={{ fontSize: '2.5rem', margin: '10px 0', color: '#ff4d4d' }}>{stats?.cancelledRequests || 0}</h2>
+                        </div>
+                        <div className="glass-card p-30 text-center" style={{ gridColumn: '1 / -1' }}>
+                            <small>TOTAL PLATFORM REVENUE</small>
+                            <h2 style={{ fontSize: '3rem', margin: '10px 0', color: '#38bdf8' }}>&#8377;{stats?.totalRevenue?.toLocaleString() || 0}</h2>
                         </div>
                     </div>
                 ) : null}
