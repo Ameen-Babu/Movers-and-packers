@@ -54,8 +54,11 @@
 }
 
 [data-theme="dark"] .btn-outline:hover,
+[data-theme="dark"] .btn-outline.active,
 [data-theme="dark"] .btn-outline-white:hover,
-[data-theme="dark"] .btn-outline-sm:hover {
+[data-theme="dark"] .btn-outline-white.active,
+[data-theme="dark"] .btn-outline-sm:hover,
+[data-theme="dark"] .btn-outline-sm.active {
   background: var(--primary) !important;
   color: #000000 !important;
 }
