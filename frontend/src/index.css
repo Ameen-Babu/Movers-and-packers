@@ -295,6 +295,11 @@ button {
   display: none;
   background: none;
   font-size: 28px;
+  color: var(--text-main);
+}
+
+.mobile-theme-toggle {
+  display: none;
 }
 
 .footer {
@@ -922,6 +927,14 @@ input[type="date"] {
   }
 
   .mobile-toggle {
+    display: block;
+  }
+
+  .desktop-theme-toggle {
+    display: none;
+  }
+
+  .mobile-theme-toggle {
     display: block;
   }
 

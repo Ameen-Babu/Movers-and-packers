@@ -51,7 +51,9 @@ const Navbar = () => {
 
 
           <div className="nav-auth">
-            <ThemeToggle />
+            <div className="desktop-theme-toggle">
+              <ThemeToggle />
+            </div>
             {user ? (
               <>
                 <div className="profile-menu-container" style={{ position: 'relative' }}>
@@ -190,9 +192,14 @@ const Navbar = () => {
           </div>
         </div>
 
-        <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        <div className="mobile-controls" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div className="mobile-theme-toggle">
+            <ThemeToggle />
+          </div>
+          <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)} style={{ color: 'var(--text-main)' }}>
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
     </nav>
   );
