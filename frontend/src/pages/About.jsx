@@ -1,78 +1,107 @@
 import React from 'react';
-import { Users, Award, Shield, Clock } from 'lucide-react';
+import { ShieldCheck, Truck, Users, Award, Clock, MapPin, CheckCircle2 } from 'lucide-react';
 
 const About = () => {
     return (
-        <div className="about-page section-padding">
-            <div className="container">
-                <div className="section-header text-center about-header">
-                    <h2>About <span className="highlight">Hydrox Movers</span></h2>
-                    <p className="subtitle">Your trusted partner in hassle-free relocation services since 2010.</p>
+        <div className="about-page-container">
+            {/* Header Section */}
+            <section className="about-hero-section section-padding bg-dark-slate">
+                <div className="container text-center text-white">
+                    <span className="sub-title text-amber">CORPORATE PROFILE</span>
+                    <h1 className="hero-title text-white">Engineering Reliability in Logistics & Relocation</h1>
+                    <p className="head-desc text-slate-300 max-w-700">
+                        Hydrox Movers & Logistics Services is a licensed freight carrier delivering residential moving, commercial shifting, and heavy logistics solutions across India.
+                    </p>
                 </div>
+            </section>
 
-                <div className="about-content glass-card">
-                    <div className="about-grid">
-                        <div className="about-text">
-                            <h3>Who We Are</h3>
+            {/* Main Content Grid */}
+            <section className="about-details-section section-padding">
+                <div className="container">
+                    <div className="about-grid-2">
+                        <div className="about-text-content">
+                            <span className="sub-title">OUR MISSION & GOVERNANCE</span>
+                            <h2>Accountable, Transparent, and Damage-Free Relocation</h2>
                             <p>
-                                Hydrox Movers is a premier packing and moving company dedicated to making your relocation experience smooth, efficient, and stress-free. With over a decade of experience, we have mastered the art of safe and secure transportation of your valuable belongings.
+                                Founded with the objective of eliminating ambiguity and informal practices in the Indian moving industry, Hydrox Movers operates under strict quality management procedures.
                             </p>
                             <p>
-                                Our team of professional packers and movers are trained to handle everything from delicate antiques to heavy furniture with the utmost care. We use high-quality packing materials and modern equipment to ensure zero damage during transit.
+                                Every relocation task is managed by full-time, background-verified personnel equipped with heavy-duty packaging materials, custom wooden crates, and GPS-monitored sealed freight vehicles.
                             </p>
+
+                            <div className="about-pillars-grid">
+                                <div className="pillar-item">
+                                    <ShieldCheck size={24} className="pillar-icon" />
+                                    <div>
+                                        <h4>Full Valuation Coverage</h4>
+                                        <p>Comprehensive transit cargo insurance protecting every consignment.</p>
+                                    </div>
+                                </div>
+                                <div className="pillar-item">
+                                    <Truck size={24} className="pillar-icon" />
+                                    <div>
+                                        <h4>Owned Vehicle Fleet</h4>
+                                        <p>No outsourced third-party trucks; 100% company owned & maintained.</p>
+                                    </div>
+                                </div>
+                                <div className="pillar-item">
+                                    <Users size={24} className="pillar-icon" />
+                                    <div>
+                                        <h4>Certified Moving Technicians</h4>
+                                        <p>Trained in carpentry disassembly, fragile packing, and rigging.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="about-stats-container">
-                            <div className="stat-card">
-                                <h2 className="highlight">10k+</h2>
-                                <p>Moves Completed</p>
-                            </div>
-                            <div className="stat-card">
-                                <h2 className="highlight">98%</h2>
-                                <p>Happy Customers</p>
-                            </div>
-                            <div className="stat-card">
-                                <h2 className="highlight">50+</h2>
-                                <p>Cities Covered</p>
-                            </div>
-                            <div className="stat-card">
-                                <h2 className="highlight">15+</h2>
-                                <p>Awards Won</p>
+
+                        <div className="about-visual-card">
+                            <img src="/warehouse.png" alt="Hydrox Movers Facility & Warehouse" className="about-facility-photo" />
+                            <div className="facility-stats-box">
+                                <div className="f-stat">
+                                    <strong>15,400+</strong>
+                                    <span>Successful Moves</span>
+                                </div>
+                                <div className="f-stat">
+                                    <strong>50+</strong>
+                                    <span>Cities Covered</span>
+                                </div>
+                                <div className="f-stat">
+                                    <strong>99.4%</strong>
+                                    <span>On-Time Dispatch</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    <div className="about-features">
-                        <div className="feature-item text-center">
-                            <div className="icon-box">
-                                <Users size={24} />
-                            </div>
-                            <h4>Expert Team</h4>
-                            <p>Professional and verified staff</p>
+            {/* Quality Standard Badges */}
+            <section className="about-certifications-section section-padding bg-slate-subtle">
+                <div className="container">
+                    <div className="section-head text-center">
+                        <span className="sub-title">COMPLIANCE & STANDARDS</span>
+                        <h2>Regulatory Accreditation & Safety Policies</h2>
+                    </div>
+
+                    <div className="cert-grid">
+                        <div className="cert-card">
+                            <Award size={32} className="cert-icon" />
+                            <h4>Quality Management Standard</h4>
+                            <p>Audited quality management standards governing packing, transport, and customer service.</p>
                         </div>
-                        <div className="feature-item text-center">
-                            <div className="icon-box">
-                                <Shield size={24} />
-                            </div>
-                            <h4>Safe & Secure</h4>
-                            <p>Insurance coverage for goods</p>
+                        <div className="cert-card">
+                            <ShieldCheck size={32} className="cert-icon" />
+                            <h4>Govt. Licensed Carrier</h4>
+                            <p>Authorized motor freight transport operator registered under Govt. Logistics Regulations.</p>
                         </div>
-                        <div className="feature-item text-center">
-                            <div className="icon-box">
-                                <Clock size={24} />
-                            </div>
-                            <h4>On-Time Delivery</h4>
-                            <p>Punctual pickup and drop</p>
-                        </div>
-                        <div className="feature-item text-center">
-                            <div className="icon-box">
-                                <Award size={24} />
-                            </div>
-                            <h4>Best Price</h4>
-                            <p>Affordable and transparent pricing</p>
+                        <div className="cert-card">
+                            <Clock size={32} className="cert-icon" />
+                            <h4>24/7 Operations Command</h4>
+                            <p>Centralized fleet dispatch monitoring vehicle speeds, routes, and climate conditions.</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 };

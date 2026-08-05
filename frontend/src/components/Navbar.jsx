@@ -1,7 +1,6 @@
-// main nav
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, User, ChevronDown, Settings, Truck } from 'lucide-react';
+import { Menu, X, LogOut, User, ChevronDown, Settings, Truck, Phone, Clock, MapPin, ShieldCheck, Search } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
@@ -14,15 +13,17 @@ const Navbar = () => {
     const checkUser = () => {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
     };
-
     checkUser();
     window.addEventListener('storage', checkUser);
-
     window.addEventListener('userLogin', checkUser);
 
     return () => {
@@ -40,164 +41,98 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
-      <div className="container nav-content">
-        <Link to="/" className="logo">
-          <span className="logo-text">HYDROX <span className="logo-highlight">MOVERS</span></span>
-        </Link>
+    <header className="site-header">
+      {/* Main Navbar */}
+      <nav className="navbar">
+        <div className="container nav-content">
+          <Link to="/" className="logo-brand">
+            <span className="brand-name">HYDROX <span className="brand-accent">MOVERS</span></span>
+          </Link>
 
-        <div className={`nav-links ${isOpen ? 'active' : ''}`}>
-          <Link to="/" onClick={() => setIsOpen(false)}>Home</Link>
-          <Link to="/about" onClick={() => setIsOpen(false)}>About</Link>
-          <Link to="/booking" onClick={() => setIsOpen(false)}>Booking</Link>
-          <Link to="/contact" onClick={() => setIsOpen(false)}>Contact</Link>
+          <div className={`nav-links ${isOpen ? 'active' : ''}`}>
+            <Link to="/" className="nav-item" onClick={() => setIsOpen(false)}>Home</Link>
+            <Link to="/about" className="nav-item" onClick={() => setIsOpen(false)}>About Us</Link>
+            <Link to="/booking" className="nav-item" onClick={() => setIsOpen(false)}>Instant Quote & Booking</Link>
+            <Link to="/contact" className="nav-item" onClick={() => setIsOpen(false)}>Contact & Branches</Link>
 
-
-          <div className="nav-auth">
-            <ThemeToggle />
-            {user ? (
-              <>
-                <div className="profile-menu-container" style={{ position: 'relative' }}>
+            <div className="nav-auth-section">
+              <div className="desktop-theme-toggle">
+                <ThemeToggle />
+              </div>
+              {user ? (
+                <div className="profile-menu-container">
                   <button
-                    className="profile-trigger"
+                    className="profile-trigger-btn"
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'var(--secondary)',
-                      fontWeight: '600',
-                      fontSize: '15px'
-                    }}
                   >
-                    <div style={{
-                      width: '35px',
-                      height: '35px',
-                      borderRadius: '50%',
-                      background: 'var(--primary)',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <User size={20} />
+                    <div className="user-avatar-circle">
+                      {user.name ? user.name.charAt(0).toUpperCase() : <User size={16} />}
                     </div>
-                    <span>{user.name}</span>
-                    <ChevronDown size={16} />
+                    <span className="user-name-label">{user.name || 'Account'}</span>
+                    <ChevronDown size={14} />
                   </button>
 
                   {isProfileOpen && (
-                    <div className="profile-dropdown glass-card" style={{
-                      position: 'absolute',
-                      top: '120%',
-                      right: '0',
-                      width: '200px',
-                      padding: '10px',
-                      borderRadius: '15px',
-                      zIndex: '1000',
-                      background: 'var(--bg-card)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '5px',
-                      boxShadow: 'var(--shadow-lg)'
-                    }}>
+                    <div className="profile-dropdown-panel">
+                      <div className="dropdown-user-header">
+                        <p className="dropdown-user-name">{user.name}</p>
+                        <p className="dropdown-user-email">{user.email || 'Verified Customer'}</p>
+                      </div>
+                      <div className="dropdown-divider"></div>
                       <Link
                         to="/profile"
                         className="profile-menu-item"
                         onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
-                        style={{
-                          padding: '10px 15px',
-                          borderRadius: '10px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          fontSize: '14px',
-                          color: 'var(--secondary)',
-                          transition: 'background 0.2s'
-                        }}
                       >
-                        <User size={16} /> Profile
+                        <User size={16} /> My Account Profile
                       </Link>
-                      {['client', 'provider'].includes(user.role?.trim().toLowerCase()) && (
-                        <Link
-                          to="/orders"
-                          className="profile-menu-item"
-                          onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
-                          style={{
-                            padding: '10px 15px',
-                            borderRadius: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            fontSize: '14px',
-                            color: 'var(--secondary)',
-                            transition: 'background 0.2s'
-                          }}
-                        >
-                          <Truck size={16} /> Orders
-                        </Link>
-                      )}
-                      {['admin', 'provider'].includes(user.role?.trim().toLowerCase()) && (
+
+                      <Link
+                        to="/orders"
+                        className="profile-menu-item"
+                        onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
+                      >
+                        <Truck size={16} /> Active Relocations & Orders
+                      </Link>
+
+                      {['admin', 'superadmin'].includes(user.role?.trim().toLowerCase()) && (
                         <Link
                           to="/dashboard"
                           className="profile-menu-item"
                           onClick={() => { setIsProfileOpen(false); setIsOpen(false); }}
-                          style={{
-                            padding: '10px 15px',
-                            borderRadius: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            fontSize: '14px',
-                            color: 'var(--secondary)',
-                            transition: 'background 0.2s'
-                          }}
                         >
-                          <Settings size={16} /> Dashboard
+                          <Settings size={16} /> Admin Command Portal
                         </Link>
                       )}
-                      <button
-                        onClick={handleLogout}
-                        className="profile-menu-item"
-                        style={{
-                          padding: '10px 15px',
-                          borderRadius: '10px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          fontSize: '14px',
-                          color: '#ff4d4d',
-                          background: 'none',
-                          border: 'none',
-                          width: '100%',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          transition: 'background 0.2s'
-                        }}
-                      >
-                        <LogOut size={16} /> Logout
+
+                      <div className="dropdown-divider"></div>
+
+                      <button onClick={handleLogout} className="profile-menu-item logout-item">
+                        <LogOut size={16} /> End Session (Logout)
                       </button>
                     </div>
                   )}
                 </div>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="btn-outline" onClick={() => setIsOpen(false)}>Login</Link>
-                <Link to="/signup" className="btn-primary" onClick={() => setIsOpen(false)}>Sign Up</Link>
-              </>
-            )}
+              ) : (
+                <div className="auth-btn-group">
+                  <Link to="/login" className="btn-secondary-nav" onClick={() => setIsOpen(false)}>Login</Link>
+                  <Link to="/booking" className="btn-primary-nav" onClick={() => setIsOpen(false)}>Book Relocation</Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mobile-controls">
+            <div className="mobile-theme-toggle">
+              <ThemeToggle />
+            </div>
+            <button className="mobile-toggle-btn" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Navigation">
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
-
-        <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 };
 
