@@ -1,7 +1,4 @@
 const Notification = require('../models/Notification');
-
-
-
 const getNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({ userId: req.user._id })
@@ -11,9 +8,6 @@ const getNotifications = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
-
-
 const markAsRead = async (req, res) => {
     try {
         const notification = await Notification.findById(req.params.id);

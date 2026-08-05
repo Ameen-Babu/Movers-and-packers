@@ -1,10 +1,6 @@
-// payment logic
 const Payment = require('../models/Payment');
 const ServiceRequest = require('../models/ServiceRequest');
 const Client = require('../models/Client');
-
-
-
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -13,8 +9,6 @@ const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
     key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder'
 });
-
-// new order
 const createOrder = async (req, res) => {
     try {
         const { requestId } = req.body;
@@ -73,14 +67,13 @@ const verifyPayment = async (req, res) => {
             const payment = await Payment.create({
                 requestId,
                 clientId: client._id,
-                providerId: serviceReq.providerId || null,
+                adminId: serviceReq.adminId || null,
                 amount: serviceReq.estimatedPrice,
                 method: 'razorpay',
                 transactionId: razorpay_payment_id,
                 paymentStatus: 'completed'
             });
-
-            serviceReq.status = 'accepted';
+            serviceReq.paymentStatus = 'paid';
             await serviceReq.save();
 
             console.log('Payment Verified and Saved successfully');
@@ -101,7 +94,7 @@ const getPaymentDetails = async (req, res) => {
     try {
         const payment = await Payment.findById(req.params.id)
             .populate('requestId')
-            .populate('providerId', 'companyName');
+            .populate('adminId', 'user');
 
         if (!payment) {
             return res.status(404).json({ message: 'Payment record not found' });
