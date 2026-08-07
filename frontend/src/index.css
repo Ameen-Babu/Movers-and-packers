@@ -1,13 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap");
 
-/* -------------------------------------------------------------
-   CORPORATE DESIGN SYSTEM TOKENS - HYDROX MOVERS
-   ------------------------------------------------------------- */
+
 :root {
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-heading: "Outfit", "Plus Jakarta Sans", sans-serif;
 
-  /* Default Theme Tokens (Dark Emerald Palette) */
+  
   --bg-body: #0D0F10;
   --bg-section: #141617;
   --bg-surface: #1B1E1F;
@@ -104,7 +102,7 @@
   --shadow-xl: none;
 }
 
-/* Base resets */
+
 * {
   margin: 0;
   padding: 0;
@@ -112,7 +110,8 @@
   box-shadow: none !important;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden !important;
@@ -133,7 +132,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-img, video, iframe, canvas {
+img,
+video,
+iframe,
+canvas {
   max-width: 100%;
   height: auto;
 }
@@ -278,9 +280,7 @@ button {
   margin: 0 auto;
 }
 
-/* -------------------------------------------------------------
-   TOP UTILITY ANNOUNCEMENT BAR & HEADER NAVIGATION
-   ------------------------------------------------------------- */
+
 .site-header {
   position: sticky;
   top: 0;
@@ -450,7 +450,7 @@ button {
   transform: translateY(-1px);
 }
 
-/* User profile menu */
+
 .profile-menu-container {
   position: relative;
 }
@@ -546,9 +546,7 @@ button {
   color: var(--text-main);
 }
 
-/* -------------------------------------------------------------
-   HERO SECTION - CENTERED WITH HORIZONTAL FLOATING BOOKING BAR
-   ------------------------------------------------------------- */
+
 .hero-centered-section {
   background: linear-gradient(180deg, #000000 0%, #0d0d0d 100%);
   padding: 90px 0 100px 0;
@@ -705,7 +703,7 @@ button {
   }
 }
 
-/* Estimator Card inside Hero */
+
 .hero-estimator-card {
   background: var(--bg-surface);
   border-radius: var(--radius-xl);
@@ -828,7 +826,7 @@ button {
   transform: translateY(-2px);
 }
 
-/* Hero Right Photo Visual */
+
 .hero-visual-col {
   position: relative;
 }
@@ -889,9 +887,7 @@ button {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* -------------------------------------------------------------
-   METRICS BAR SECTION
-   ------------------------------------------------------------- */
+
 .metrics-bar-section {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-color);
@@ -930,9 +926,7 @@ button {
   font-weight: 600;
 }
 
-/* -------------------------------------------------------------
-   CORE SERVICES GRID
-   ------------------------------------------------------------- */
+
 .services-corporate-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1043,9 +1037,7 @@ button {
   gap: 12px;
 }
 
-/* -------------------------------------------------------------
-   COMPARISON TABLE SECTION
-   ------------------------------------------------------------- */
+
 .comparison-table-wrapper {
   background: var(--bg-surface);
   border-radius: var(--radius-xl);
@@ -1092,9 +1084,7 @@ button {
   margin-right: 8px;
 }
 
-/* -------------------------------------------------------------
-   WORKFLOW STEPS
-   ------------------------------------------------------------- */
+
 .workflow-steps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1129,9 +1119,7 @@ button {
   line-height: 1.5;
 }
 
-/* -------------------------------------------------------------
-   FLEET & INFRASTRUCTURE SPECS
-   ------------------------------------------------------------- */
+
 .fleet-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1189,9 +1177,7 @@ button {
   padding-top: 16px;
 }
 
-/* -------------------------------------------------------------
-   REVIEWS & FAQ
-   ------------------------------------------------------------- */
+
 .reviews-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1235,7 +1221,7 @@ button {
   line-height: 1.6;
 }
 
-/* FAQ Accordion */
+
 .faq-container-narrow {
   max-width: 800px;
 }
@@ -1273,7 +1259,7 @@ button {
   line-height: 1.6;
 }
 
-/* CTA Banner */
+
 .cta-banner-section {
   padding: 60px 0;
 }
@@ -1337,9 +1323,7 @@ button {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* -------------------------------------------------------------
-   BOOKING PAGE & MULTI-STEP PORTAL
-   ------------------------------------------------------------- */
+
 .booking-steps-bar {
   display: flex;
   justify-content: space-between;
@@ -1554,7 +1538,7 @@ button {
   box-shadow: 0 4px 14px rgba(0, 177, 79, 0.4);
 }
 
-/* Booking Summary Card */
+
 .booking-summary-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -1635,7 +1619,7 @@ button {
   color: #10B981;
 }
 
-/* Success Card */
+
 .booking-success-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -1719,9 +1703,7 @@ button {
   border: 1px solid var(--border-dark);
 }
 
-/* -------------------------------------------------------------
-   ABOUT & CONTACT PAGE STYLING
-   ------------------------------------------------------------- */
+
 .about-hero-section,
 .contact-hero {
   padding: 80px 0 60px 0;
@@ -1855,7 +1837,7 @@ button {
   color: var(--text-muted);
 }
 
-/* Contact Specific */
+
 .contact-info-panel h3,
 .corporate-contact-form h3 {
   font-size: 26px;
@@ -1943,9 +1925,7 @@ button {
   margin-bottom: 16px;
 }
 
-/* -------------------------------------------------------------
-   FOOTER STYLING
-   ------------------------------------------------------------- */
+
 .site-footer {
   background: #000000;
   color: #F8FAFC;
@@ -2102,9 +2082,7 @@ button {
   color: #94A3B8;
 }
 
-/* -------------------------------------------------------------
-   RESPONSIVE MEDIA QUERIES
-   ------------------------------------------------------------- */
+
 @media (max-width: 1024px) {
   .hero-grid-wrapper {
     grid-template-columns: 1fr;
@@ -2195,9 +2173,7 @@ button {
   }
 }
 
-/* -------------------------------------------------------------
-   PREMIUM AUTHENTICATION SYSTEM (LOGIN, SIGNUP, ADMIN SIGNUP)
-   ------------------------------------------------------------- */
+
 .auth-page-wrapper {
   padding: 70px 0;
   background: var(--bg-body);
@@ -2296,7 +2272,7 @@ button {
   padding-top: 20px;
 }
 
-/* Auth Form Side */
+
 .auth-form-side {
   padding: 48px 44px;
   display: flex;
@@ -2319,7 +2295,7 @@ button {
   color: var(--text-muted);
 }
 
-/* Role Switcher Tabs */
+
 .auth-role-tabs {
   display: flex;
   background: var(--bg-subtle);
@@ -2346,7 +2322,7 @@ button {
   box-shadow: var(--shadow-sm);
 }
 
-/* Error Banner - 100% Solid Opaque */
+
 .auth-error-banner {
   background: #DC2626 !important;
   border: 1px solid #B91C1C !important;
@@ -2484,7 +2460,7 @@ button {
   border-color: #E4E4E7;
 }
 
-/* Demo preset button bar */
+
 .demo-fill-box {
   display: flex;
   align-items: center;
@@ -2565,9 +2541,7 @@ button {
   }
 }
 
-/* -------------------------------------------------------------
-   ENTERPRISE COMPANY PROFILE DASHBOARD
-   ------------------------------------------------------------- */
+
 .enterprise-profile-page {
   background: var(--bg-body);
   min-height: calc(100vh - 120px);
@@ -2674,7 +2648,7 @@ button {
   transform: translateY(-1px);
 }
 
-/* Stats Overview Cards */
+
 .profile-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2725,7 +2699,7 @@ button {
   color: var(--text-main);
 }
 
-/* Profile Navigation Tabs */
+
 .profile-nav-tabs {
   display: flex;
   gap: 12px;
@@ -2758,7 +2732,7 @@ button {
   border-bottom-color: var(--accent-gold);
 }
 
-/* Profile Section Card */
+
 .profile-section-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -2785,7 +2759,7 @@ button {
   color: var(--text-muted);
 }
 
-/* Profile Details Grid */
+
 .profile-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2861,7 +2835,7 @@ button {
   border-color: #000000;
 }
 
-/* Inline Forms */
+
 .p-inline-form {
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
@@ -2955,7 +2929,7 @@ button {
   color: #FFFFFF;
 }
 
-/* Compliance Cards */
+
 .compliance-grid {
   display: flex;
   flex-direction: column;
@@ -3010,9 +2984,7 @@ button {
   }
 }
 
-/* -------------------------------------------------------------
-   ADMIN TABS & DASHBOARD CONTROL STYLING
-   ------------------------------------------------------------- */
+
 .admin-tabs {
   display: flex;
   gap: 10px;
@@ -3133,7 +3105,7 @@ button {
   gap: 12px;
 }
 
-/* Card Price & Mode Pill Details */
+
 .card-price-tag {
   font-size: 16px;
   font-weight: 800;
@@ -3214,9 +3186,7 @@ button {
   border-color: #DC2626;
 }
 
-/* -------------------------------------------------------------
-   ENTERPRISE DASHBOARD & USERS DIRECTORY STYLING
-   ------------------------------------------------------------- */
+
 .dashboard-page {
   padding-top: 40px !important;
 }
@@ -3406,12 +3376,10 @@ button {
   margin-top: 8px;
 }
 
-/* -------------------------------------------------------------
-   MOBILE ONLY RESPONSIVE OPTIMIZATIONS (@media max-width: 768px)
-   ------------------------------------------------------------- */
+
 @media (max-width: 768px) {
 
-  /* Auth Pages: Hide Left Branding Side on Mobile so Sign In form is instant */
+  
   .auth-page-wrapper {
     padding: 24px 0 !important;
   }
@@ -3433,7 +3401,7 @@ button {
     grid-template-columns: 1fr !important;
   }
 
-  /* Booking & Step Navigation Bar on Mobile */
+  
   .booking-steps-bar {
     flex-wrap: wrap !important;
     gap: 8px !important;
@@ -3445,7 +3413,7 @@ button {
     flex: 1 1 calc(50% - 8px) !important;
   }
 
-  /* Hero Floating Search Bar on Mobile */
+  
   .hero-floating-search-bar {
     padding: 16px !important;
     border-radius: var(--radius-lg) !important;
@@ -3477,11 +3445,17 @@ button {
   }
 }
 
-/* -------------------------------------------------------------
-   STRICT MOBILE HORIZONTAL OVERFLOW PREVENTION
-   ------------------------------------------------------------- */
+
 @media (max-width: 768px) {
-  html, body, #root, header, footer, section, div, main {
+
+  html,
+  body,
+  #root,
+  header,
+  footer,
+  section,
+  div,
+  main {
     max-width: 100vw !important;
     box-sizing: border-box !important;
   }
@@ -3494,28 +3468,41 @@ button {
     overflow-x: hidden !important;
   }
 
-  .footer-main-grid, .site-footer, .footer-bottom-bar {
+  .footer-main-grid,
+  .site-footer,
+  .footer-bottom-bar {
     width: 100% !important;
     max-width: 100vw !important;
     box-sizing: border-box !important;
     overflow-x: hidden !important;
   }
 
-  .contact-line, .footer-brand-col, .footer-links-col, .footer-contact-col {
+  .contact-line,
+  .footer-brand-col,
+  .footer-links-col,
+  .footer-contact-col {
     max-width: 100% !important;
     word-break: break-word !important;
     overflow-wrap: anywhere !important;
   }
 
-  p, span, h1, h2, h3, h4, h5, h6, a, label, strong {
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  a,
+  label,
+  strong {
     overflow-wrap: break-word !important;
     word-break: break-word !important;
   }
 }
 
-/* -------------------------------------------------------------
-   CTA BANNER SECTION & MOBILE RESPONSIVENESS
-   ------------------------------------------------------------- */
+
 .cta-banner-section {
   padding: 60px 0;
   background: var(--bg-body);
@@ -3630,7 +3617,7 @@ button {
   }
 }
 
-/* ── MODAL OVERLAY ───────────────────────────────────────────── */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -3712,24 +3699,47 @@ button {
   margin: 0;
 }
 
-/* ── KEYFRAME ANIMATIONS ─────────────────────────────────────── */
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.5); }
-  70%  { transform: scale(1);    box-shadow: 0 0 0 6px rgba(0, 200, 83, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 200, 83, 0); }
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.5);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(0, 200, 83, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 200, 83, 0);
+  }
 }
 
-/* ── STATUS BUTTONS ──────────────────────────────────────────── */
+
 .status-btns {
   display: flex;
   gap: 10px;

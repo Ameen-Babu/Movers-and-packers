@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-
 const protect = async (req, res, next) => {
     let token;
 
@@ -16,6 +15,9 @@ const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'User not found' });
             }
 
+            if (req.user.isActive === false) {
+                return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
+            }
             return next();
         } catch (error) {
             console.error('JWT Verification Error:', error.message);
@@ -28,15 +30,25 @@ const protect = async (req, res, next) => {
     }
 };
 
-
 const admin = (req, res, next) => {
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
+    if (req.user && (req.user.role === 'superadmin' || (req.user.role === 'admin' && req.user.isApproved))) {
         next();
     } else {
-        res.status(401).json({ message: 'Not authorized as an admin' });
+        res.status(401).json({ 
+            message: req.user && req.user.role === 'admin' && !req.user.isApproved 
+                ? 'Your account is pending approval' 
+                : 'Not authorized as an admin' 
+        });
     }
 };
 
+const superadmin = (req, res, next) => {
+    if (req.user && req.user.role === 'superadmin') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Not authorized as superadmin' });
+    }
+};
 
 const adminOrProvider = (req, res, next) => {
     if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin' || req.user.role === 'provider')) {
@@ -46,13 +58,4 @@ const adminOrProvider = (req, res, next) => {
     }
 };
 
-const superadmin = (req, res, next) => {
-    if (req.user && req.user.role === 'superadmin') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Not authorized as a superadmin' });
-    }
-};
-
-module.exports = { protect, admin, adminOrProvider, superadmin };
-
+module.exports = { protect, admin, superadmin, adminOrProvider };

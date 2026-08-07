@@ -57,7 +57,7 @@ const Home = () => {
 
     return (
         <div className="home-page-container">
-            {/* HERO SECTION - CENTERED WITH HORIZONTAL FLOATING BOOKING BAR */}
+            
             <section className="hero-centered-section">
                 <div className="container text-center hero-centered-content">
                     <h1 className="hero-centered-title">
@@ -67,7 +67,7 @@ const Home = () => {
                         Calculate instant binding rates for home shifting, commercial office relocation, and express freight across India.
                     </p>
 
-                    {/* Horizontal Floating Search / Booking Bar */}
+                    
                     <div className="hero-floating-search-bar">
                         <form onSubmit={handleQuickQuoteSubmit} className="search-bar-form">
                             <div className="search-bar-field">
@@ -123,7 +123,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* KEY METRICS BAR */}
+            
             <section className="metrics-bar-section">
                 <div className="container metrics-grid">
                     <div className="metric-box">
@@ -145,7 +145,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* CORE SERVICES SECTION */}
+            
             <section className="services-section section-padding">
                 <div className="container">
                     <div className="section-head text-center">
@@ -155,7 +155,7 @@ const Home = () => {
                     </div>
 
                     <div className="services-corporate-grid">
-                        {/* Service Card 1 */}
+                        
                         <div className="corporate-service-card">
                             <div className="service-img-wrapper">
                                 <img src="/packing_team.png" alt="Household Packing" />
@@ -173,7 +173,7 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Service Card 2 */}
+                        
                         <div className="corporate-service-card">
                             <div className="service-img-wrapper">
                                 <img src="/warehouse.png" alt="Warehouse & Commercial Storage" />
@@ -191,7 +191,7 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Service Card 3 */}
+                        
                         <div className="corporate-service-card">
                             <div className="service-img-wrapper">
                                 <img src="/hero_truck.png" alt="Intercity Direct Transit" />
@@ -212,7 +212,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* COMPARISON TABLE: HYDROX MOVERS VS LOCAL INFORMAL MOVERS */}
+            
             <section className="comparison-section section-padding bg-slate-subtle">
                 <div className="container">
                     <div className="section-head text-center">
@@ -262,7 +262,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* 4-STEP RELOCATION WORKFLOW */}
+            
             <section className="workflow-section section-padding">
                 <div className="container">
                     <div className="section-head text-center">
@@ -296,7 +296,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* FLEET & INFRASTRUCTURE SPECS */}
+            
             <section className="fleet-section section-padding bg-dark-slate">
                 <div className="container">
                     <div className="section-head text-center text-white">
@@ -354,7 +354,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* VERIFIED CUSTOMER REVIEWS */}
+            
             <section className="reviews-section section-padding">
                 <div className="container">
                     <div className="section-head text-center">
@@ -406,7 +406,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* FAQ ACCORDION SECTION */}
+            
             <section className="faq-section section-padding bg-slate-subtle">
                 <div className="container faq-container-narrow">
                     <div className="section-head text-center">
@@ -449,7 +449,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* CALL TO ACTION BANNER */}
+            
             <section className="cta-banner-section">
                 <div className="container cta-box-corporate">
                     <div className="cta-left">

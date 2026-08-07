@@ -37,7 +37,7 @@ const Dashboard = () => {
 
             try {
                 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-                
+
                 let currentUserObj = user;
                 try {
                     const meRes = await fetch(`${apiBaseUrl}/auth/me`, {
@@ -50,7 +50,7 @@ const Dashboard = () => {
                         setUserRole(currentUserObj.role);
                     }
                 } catch {
-                    
+
                 }
 
                 const response = await fetch(`${apiBaseUrl}/services`, {
@@ -112,14 +112,14 @@ const Dashboard = () => {
                             headers: { 'Authorization': `Bearer ${currentUserObj.token}` }
                         });
                         if (pendingRes.ok) setPendingRequests(await pendingRes.json());
-                    } catch (err) {}
+                    } catch (err) { }
 
                     try {
                         const claimedRes = await fetch(`${apiBaseUrl}/services?view=claimed`, {
                             headers: { 'Authorization': `Bearer ${currentUserObj.token}` }
                         });
                         if (claimedRes.ok) setClaimedRequests(await claimedRes.json());
-                    } catch (err) {}
+                    } catch (err) { }
                 }
             } catch (err) {
                 console.error('Main fetch error:', err);

@@ -122,7 +122,12 @@ const updateUserRole = async (req, res) => {
         if (role === 'client') {
             const clientExists = await Client.findOne({ userId: user._id });
             if (!clientExists) {
-                await Client.create({ userId: user._id });
+                await Client.create({
+                    userId: user._id,
+                    address: 'Not Provided',
+                    city: 'Not Provided',
+                    pincode: '000000'
+                });
             }
         }
 
