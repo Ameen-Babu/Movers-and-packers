@@ -396,9 +396,6 @@ const Dashboard = () => {
                         )}
                         <p>{['admin', 'superadmin'].includes(userRole?.toLowerCase()) ? 'Manage platform activity and orders' : 'Track your active moves and past requests'}</p>
                     </div>
-                    <span className="user-role-mode-pill">
-                        <span className="role-mode-dot"></span> {userRole?.toUpperCase() || 'USER'} MODE
-                    </span>
                 </div>
 
                 {isPendingAdmin && (

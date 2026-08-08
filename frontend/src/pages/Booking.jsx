@@ -275,19 +275,22 @@ const Booking = () => {
                     <p className="head-desc">Complete the details below to lock in your binding fare estimate with full insurance coverage.</p>
                 </div>
 
-                {/* STEPS INDICATOR BAR */}
                 <div className="booking-steps-bar">
-                    <div className={`step-pill ${currentStep >= 1 ? 'active' : ''}`}>
-                        <span className="step-num">1</span> Route & Schedule
+                    <div className={`step-pill ${currentStep === 1 ? 'active' : (currentStep > 1 ? 'completed' : '')}`}>
+                        <span className="step-num">{currentStep > 1 ? '✓' : '1'}</span>
+                        <span className="step-label">Route & Schedule</span>
                     </div>
-                    <div className={`step-pill ${currentStep >= 2 ? 'active' : ''}`}>
-                        <span className="step-num">2</span> Scale & Cargo
+                    <div className={`step-pill ${currentStep === 2 ? 'active' : (currentStep > 2 ? 'completed' : '')}`}>
+                        <span className="step-num">{currentStep > 2 ? '✓' : '2'}</span>
+                        <span className="step-label">Scale & Cargo</span>
                     </div>
-                    <div className={`step-pill ${currentStep >= 3 ? 'active' : ''}`}>
-                        <span className="step-num">3</span> Packing & Protection
+                    <div className={`step-pill ${currentStep === 3 ? 'active' : (currentStep > 3 ? 'completed' : '')}`}>
+                        <span className="step-num">{currentStep > 3 ? '✓' : '3'}</span>
+                        <span className="step-label">Packing & Protection</span>
                     </div>
-                    <div className={`step-pill ${currentStep >= 4 ? 'active' : ''}`}>
-                        <span className="step-num">4</span> Review & Confirm
+                    <div className={`step-pill ${currentStep === 4 ? 'active' : (currentStep > 4 ? 'completed' : '')}`}>
+                        <span className="step-num">4</span>
+                        <span className="step-label">Review & Confirm</span>
                     </div>
                 </div>
 

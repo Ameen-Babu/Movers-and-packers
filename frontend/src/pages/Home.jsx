@@ -159,7 +159,6 @@ const Home = () => {
                         <div className="corporate-service-card">
                             <div className="service-img-wrapper">
                                 <img src="/packing_team.png" alt="Household Packing" />
-                                <span className="service-tag">Most Popular</span>
                             </div>
                             <div className="service-card-body">
                                 <h3>Household Shifting</h3>
@@ -177,7 +176,6 @@ const Home = () => {
                         <div className="corporate-service-card">
                             <div className="service-img-wrapper">
                                 <img src="/warehouse.png" alt="Warehouse & Commercial Storage" />
-                                <span className="service-tag">Commercial</span>
                             </div>
                             <div className="service-card-body">
                                 <h3>Office & Commercial Relocation</h3>
@@ -195,7 +193,6 @@ const Home = () => {
                         <div className="corporate-service-card">
                             <div className="service-img-wrapper">
                                 <img src="/hero_truck.png" alt="Intercity Direct Transit" />
-                                <span className="service-tag">Long Distance</span>
                             </div>
                             <div className="service-card-body">
                                 <h3>Intercity Express Freight</h3>
@@ -233,28 +230,28 @@ const Home = () => {
                             <tbody>
                                 <tr>
                                     <td><strong>Price Guarantee</strong></td>
-                                    <td className="highlight-col"><CheckCircle2 size={16} className="icon-success" /> Written fixed quotation before dispatch</td>
-                                    <td><AlertCircle size={16} className="icon-warning" /> Unexpected extra fees on delivery day</td>
+                                    <td className="highlight-col">Written fixed quotation before dispatch</td>
+                                    <td>Unexpected extra fees on delivery day</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Cargo Insurance Coverage</strong></td>
-                                    <td className="highlight-col"><CheckCircle2 size={16} className="icon-success" /> Full transit insurance claim backup included</td>
-                                    <td><AlertCircle size={16} className="icon-warning" /> Zero formal damage liability</td>
+                                    <td className="highlight-col">Full transit insurance claim backup included</td>
+                                    <td>Zero formal damage liability</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Crew Professionalism</strong></td>
-                                    <td className="highlight-col"><CheckCircle2 size={16} className="icon-success" /> Uniformed, background-checked full-time staff</td>
-                                    <td><AlertCircle size={16} className="icon-warning" /> Untrained daily wage contract labor</td>
+                                    <td className="highlight-col">Uniformed, background-checked full-time staff</td>
+                                    <td>Untrained daily wage contract labor</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Vehicle Tracking</strong></td>
-                                    <td className="highlight-col"><CheckCircle2 size={16} className="icon-success" /> Real-time GPS location sharing for clients</td>
-                                    <td><AlertCircle size={16} className="icon-warning" /> No transit location visibility</td>
+                                    <td className="highlight-col">Real-time GPS location sharing for clients</td>
+                                    <td>No transit location visibility</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Packing Materials</strong></td>
-                                    <td className="highlight-col"><CheckCircle2 size={16} className="icon-success" /> New 5-layer boxes, bubble wrap, custom crates</td>
-                                    <td><AlertCircle size={16} className="icon-warning" /> Used/recycled low-grade boxes</td>
+                                    <td className="highlight-col">New 5-layer boxes, bubble wrap, custom crates</td>
+                                    <td>Used/recycled low-grade boxes</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -321,7 +318,7 @@ const Home = () => {
                             </div>
                         </div>
 
-                        <div className="fleet-card active-fleet">
+                        <div className="fleet-card">
                             <div className="fleet-header">
                                 <div>
                                     <h3>19ft Commercial Heavy Carrier</h3>
