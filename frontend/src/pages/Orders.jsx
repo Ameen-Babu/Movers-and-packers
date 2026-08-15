@@ -110,6 +110,82 @@ const Orders = () => {
         }
     };
 
+    const handlePayOrder = async (request) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !user.token) return;
+
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+            const orderRes = await fetch(`${apiBaseUrl}/payments/create-order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify({ requestId: request._id })
+            });
+
+            const orderData = await orderRes.json();
+            if (!orderRes.ok || !orderData.id) {
+                alert(orderData.message || 'Failed to initiate Razorpay order');
+                return;
+            }
+
+            const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_S1IjkpvnuUbuE9';
+            const options = {
+                key: razorpayKey,
+                amount: orderData.amount,
+                currency: orderData.currency || 'INR',
+                name: 'Hydrox Movers & Packers',
+                description: `Payment for Order #${request._id.slice(-8).toUpperCase()}`,
+                order_id: orderData.id,
+                handler: async (paymentResponse) => {
+                    try {
+                        const verifyRes = await fetch(`${apiBaseUrl}/payments/verify`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${user.token}`
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: paymentResponse.razorpay_order_id,
+                                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                razorpay_signature: paymentResponse.razorpay_signature,
+                                requestId: request._id
+                            })
+                        });
+                        const verifyData = await verifyRes.json();
+                        if (verifyRes.ok) {
+                            setRequests(prev => prev.map(r => r._id === request._id ? { ...r, paymentStatus: 'paid' } : r));
+                            if (selectedRequest && selectedRequest._id === request._id) {
+                                setSelectedRequest(prev => ({ ...prev, paymentStatus: 'paid' }));
+                            }
+                            alert('Payment successful!');
+                        } else {
+                            alert(verifyData.message || 'Payment verification failed');
+                        }
+                    } catch (err) {
+                        alert('Payment verification failed');
+                    }
+                },
+                prefill: {
+                    name: user.name || '',
+                    email: user.email || ''
+                },
+                theme: { color: '#0f172a' }
+            };
+
+            if (window.Razorpay) {
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+            } else {
+                alert('Razorpay SDK not loaded');
+            }
+        } catch (err) {
+            alert('Could not launch payment gateway');
+        }
+    };
+
     const openDetails = (req) => {
         setSelectedRequest(req);
         setIsModalOpen(true);
@@ -190,8 +266,18 @@ const Orders = () => {
                                     </div>
                                 </div>
 
-                                <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <div className="card-footer" style={{ borderTop: '1px solid var(--bg-light)', paddingTop: '15px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <button className="btn-outline-sm" style={{ borderRadius: '50px', padding: '8px 20px' }} onClick={() => openDetails(req)}>Details</button>
+
+                                    {user?.role === 'client' && req.paymentStatus !== 'paid' && req.status !== 'cancelled' && (
+                                        <button
+                                            className="btn-primary-sm"
+                                            style={{ borderRadius: '50px', padding: '8px 20px', backgroundColor: '#10b981', borderColor: '#10b981' }}
+                                            onClick={() => handlePayOrder(req)}
+                                        >
+                                            Pay Now
+                                        </button>
+                                    )}
 
                                     {user?.role === 'admin' && !req.claimedBy && (
                                         <button
@@ -268,6 +354,18 @@ const Orders = () => {
                                             Claim This Order
                                         </button>
                                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '10px' }}>Claiming this order lets you manage its status from your dashboard.</p>
+                                    </div>
+                                )}
+
+                                {user?.role === 'client' && selectedRequest.paymentStatus !== 'paid' && selectedRequest.status !== 'cancelled' && (
+                                    <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                                        <button
+                                            className="btn-primary"
+                                            style={{ backgroundColor: '#10b981', borderColor: '#10b981', borderRadius: '50px', width: '100%', padding: '15px' }}
+                                            onClick={() => handlePayOrder(selectedRequest)}
+                                        >
+                                            Pay ₹{selectedRequest.estimatedPrice} via Razorpay
+                                        </button>
                                     </div>
                                 )}
 

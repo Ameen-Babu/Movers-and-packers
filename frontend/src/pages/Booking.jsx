@@ -205,7 +205,89 @@ const Booking = () => {
                 throw new Error(data.message || 'Failed to submit booking request');
             }
 
-            setSuccessOrder(data);
+            try {
+                const orderRes = await fetch(`${apiBaseUrl}/payments/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ requestId: data._id })
+                });
+
+                const orderData = await orderRes.json();
+
+                if (orderRes.ok && orderData.id) {
+                    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_S1IjkpvnuUbuE9';
+
+                    const options = {
+                        key: razorpayKey,
+                        amount: orderData.amount,
+                        currency: orderData.currency || 'INR',
+                        name: 'Hydrox Movers & Packers',
+                        description: `Payment for Order #${data._id.slice(-8).toUpperCase()}`,
+                        order_id: orderData.id,
+                        handler: async (paymentResponse) => {
+                            try {
+                                const verifyRes = await fetch(`${apiBaseUrl}/payments/verify`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: paymentResponse.razorpay_order_id,
+                                        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                        razorpay_signature: paymentResponse.razorpay_signature,
+                                        requestId: data._id
+                                    })
+                                });
+
+                                const verifyData = await verifyRes.json();
+
+                                if (verifyRes.ok) {
+                                    setSuccessOrder({ ...data, paymentStatus: 'paid' });
+                                } else {
+                                    setError(verifyData.message || 'Payment verification failed. Your booking is saved as unpaid.');
+                                    setSuccessOrder({ ...data, paymentStatus: 'unpaid' });
+                                }
+                            } catch (err) {
+                                console.error('Verification error:', err);
+                                setSuccessOrder({ ...data, paymentStatus: 'unpaid' });
+                            }
+                        },
+                        prefill: {
+                            name: userData.name || '',
+                            email: userData.email || '',
+                            contact: userData.phone || ''
+                        },
+                        theme: {
+                            color: '#0f172a'
+                        },
+                        modal: {
+                            ondismiss: () => {
+                                setError('Payment was not completed. Your booking request has been created with UNPAID status.');
+                                setSuccessOrder({ ...data, paymentStatus: 'unpaid' });
+                            }
+                        }
+                    };
+
+                    if (window.Razorpay) {
+                        const rzp = new window.Razorpay(options);
+                        rzp.on('payment.failed', function (resp) {
+                            console.error('Razorpay payment failed:', resp.error);
+                            setError('Payment failed or rejected. Your booking request has been created with UNPAID status.');
+                            setSuccessOrder({ ...data, paymentStatus: 'unpaid' });
+                        });
+                        rzp.open();
+                        return;
+                    }
+                }
+            } catch (payErr) {
+                console.warn('Could not initialize Razorpay checkout popup:', payErr);
+            }
+
+            setSuccessOrder({ ...data, paymentStatus: 'unpaid' });
         } catch (err) {
             console.error('Booking submission error:', err);
             setError(err.message || 'Server connection error. Please try again.');
@@ -214,17 +296,103 @@ const Booking = () => {
         }
     };
 
+    const handleRetryPayment = async () => {
+        if (!successOrder || !successOrder._id) return;
+        setLoading(true);
+        setError('');
+
+        try {
+            const storedUserStr = localStorage.getItem('user');
+            const userData = storedUserStr ? JSON.parse(storedUserStr) : null;
+            const token = userData?.token || localStorage.getItem('token');
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+            const orderRes = await fetch(`${apiBaseUrl}/payments/create-order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ requestId: successOrder._id })
+            });
+
+            const orderData = await orderRes.json();
+            if (!orderRes.ok || !orderData.id) {
+                setError(orderData.message || 'Failed to initialize payment gateway');
+                return;
+            }
+
+            const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_S1IjkpvnuUbuE9';
+            const options = {
+                key: razorpayKey,
+                amount: orderData.amount,
+                currency: orderData.currency || 'INR',
+                name: 'Hydrox Movers & Packers',
+                description: `Payment for Order #${successOrder._id.slice(-8).toUpperCase()}`,
+                order_id: orderData.id,
+                handler: async (paymentResponse) => {
+                    try {
+                        const verifyRes = await fetch(`${apiBaseUrl}/payments/verify`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: paymentResponse.razorpay_order_id,
+                                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                razorpay_signature: paymentResponse.razorpay_signature,
+                                requestId: successOrder._id
+                            })
+                        });
+
+                        const verifyData = await verifyRes.json();
+                        if (verifyRes.ok) {
+                            setSuccessOrder(prev => ({ ...prev, paymentStatus: 'paid' }));
+                            setError('');
+                        } else {
+                            setError(verifyData.message || 'Payment verification failed');
+                        }
+                    } catch (err) {
+                        setError('Payment verification error');
+                    }
+                },
+                prefill: {
+                    name: userData?.name || '',
+                    email: userData?.email || ''
+                },
+                theme: { color: '#0f172a' }
+            };
+
+            if (window.Razorpay) {
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+            }
+        } catch (err) {
+            setError('Could not open payment gateway');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (successOrder) {
+        const isPaid = successOrder.paymentStatus === 'paid';
+
         return (
             <div className="booking-page section-padding">
                 <div className="container max-w-700">
                     <div className="booking-success-card">
-                        <div className="success-icon-badge">
-                            <CheckCircle2 size={54} />
+                        <div className={`success-icon-badge ${isPaid ? 'paid' : 'unpaid'}`}>
+                            {isPaid ? <CheckCircle2 size={42} /> : <AlertCircle size={42} />}
                         </div>
-                        <h2>Relocation Booking Confirmed!</h2>
-                        <p className="success-subtext">Order Reference: <strong>#{successOrder._id?.slice(-8).toUpperCase() || 'HYD-8829'}</strong></p>
-                        
+                        <h2>{isPaid ? 'Relocation Booking Confirmed!' : 'Booking Created — Payment Pending'}</h2>
+                        <div className="success-subtext">
+                            <span>Order Reference: <strong>#{successOrder._id?.slice(-8).toUpperCase() || 'HYD-8829'}</strong></span>
+                            <span className={`status-pill ${isPaid ? 'paid' : 'unpaid'}`}>
+                                {isPaid ? 'PAID' : 'UNPAID'}
+                            </span>
+                        </div>
+
                         <div className="success-summary-box">
                             <div className="summary-row">
                                 <span>Service Type:</span>
@@ -248,12 +416,25 @@ const Booking = () => {
                             </div>
                         </div>
 
-                        <p className="dispatch-note">
-                            <Info size={16} /> Our logistics dispatch manager will call you within 2 hours to confirm vehicle assignment and packing crew details.
-                        </p>
+                        {!isPaid ? (
+                            <div className="dispatch-note warning">
+                                <AlertCircle size={20} style={{ flexShrink: 0 }} />
+                                <div>Payment was not completed. You can complete payment now via Razorpay or access this booking anytime under your orders.</div>
+                            </div>
+                        ) : (
+                            <div className="dispatch-note info">
+                                <Info size={20} style={{ flexShrink: 0 }} />
+                                <div>Our logistics dispatch manager will call you within 2 hours to confirm vehicle assignment and packing crew details.</div>
+                            </div>
+                        )}
 
                         <div className="success-actions">
-                            <button className="btn-primary" onClick={() => navigate('/orders')}>
+                            {!isPaid && (
+                                <button className="btn-primary" onClick={handleRetryPayment} disabled={loading}>
+                                    {loading ? 'Opening Payment...' : `Complete Payment (₹${successOrder.estimatedPrice?.toLocaleString('en-IN')})`}
+                                </button>
+                            )}
+                            <button className={isPaid ? "btn-primary" : "btn-secondary"} onClick={() => navigate('/orders')}>
                                 View My Relocations <Truck size={18} />
                             </button>
                             <button className="btn-secondary" onClick={() => navigate('/')}>

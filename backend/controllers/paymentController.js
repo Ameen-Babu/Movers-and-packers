@@ -4,29 +4,47 @@ const Client = require('../models/Client');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
+const getRazorpayInstance = () => {
+    const key_id = process.env.RAZORPAY_KEY_ID;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder'
-});
+    if (!key_id || !key_secret) {
+        throw new Error('Razorpay credentials missing in environment variables');
+    }
+
+    return new Razorpay({ key_id, key_secret });
+};
+
 const createOrder = async (req, res) => {
     try {
         const { requestId } = req.body;
 
+        if (!requestId) {
+            return res.status(400).json({ message: 'Request ID is required' });
+        }
+
         const serviceRequest = await ServiceRequest.findById(requestId);
-        if (!serviceRequest) return res.status(404).json({ message: 'Request not found' });
+        if (!serviceRequest) {
+            return res.status(404).json({ message: 'Service request not found' });
+        }
+
+        const razorpay = getRazorpayInstance();
+        const amount = Math.round((serviceRequest.estimatedPrice || 0) * 100);
+
+        if (amount <= 0) {
+            return res.status(400).json({ message: 'Invalid price for payment' });
+        }
 
         const options = {
-            amount: serviceRequest.estimatedPrice * 100,
+            amount,
             currency: 'INR',
-            receipt: `receipt_${requestId}`
+            receipt: `receipt_${requestId.toString().slice(-12)}`
         };
 
         const order = await razorpay.orders.create(options);
-        res.json(order);
-
+        res.status(200).json(order);
     } catch (error) {
-        console.error("Razorpay Order Error:", error);
+        console.error('Razorpay Order Creation Error:', error);
         res.status(500).json({ message: 'Order creation failed', error: error.message });
     }
 };
@@ -35,60 +53,63 @@ const verifyPayment = async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, requestId } = req.body;
 
-        const secret = process.env.RAZORPAY_KEY_SECRET;
-
-        if (!secret) {
-            console.error('CRITICAL: RAZORPAY_KEY_SECRET is missing in backend/.env');
-            return res.status(500).json({ message: 'Backend Secret Key is missing!' });
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !requestId) {
+            return res.status(400).json({ message: 'Missing required payment verification details' });
         }
 
-        const body = razorpay_order_id + "|" + razorpay_payment_id;
+        const secret = process.env.RAZORPAY_KEY_SECRET;
+        if (!secret) {
+            return res.status(500).json({ message: 'Server configuration error: missing secret key' });
+        }
+
+        const body = `${razorpay_order_id}|${razorpay_payment_id}`;
         const expectedSignature = crypto
             .createHmac('sha256', secret)
-            .update(body.toString())
+            .update(body)
             .digest('hex');
 
-        console.log('Expected:', expectedSignature);
-        console.log('Received:', razorpay_signature);
+        const isSignatureValid = crypto.timingSafeEqual(
+            Buffer.from(expectedSignature, 'utf-8'),
+            Buffer.from(razorpay_signature, 'utf-8')
+        );
 
-        if (expectedSignature === razorpay_signature) {
-            const serviceReq = await ServiceRequest.findById(requestId);
-            if (!serviceReq) {
-                console.error('Service Request not found for ID:', requestId);
-                return res.status(404).json({ message: 'Service Request not found' });
-            }
+        if (!isSignatureValid) {
+            return res.status(400).json({ message: 'Invalid payment signature' });
+        }
 
-            const client = await Client.findOne({ userId: req.user._id });
-            if (!client) {
-                console.error('Client profile not found for user:', req.user._id);
-                return res.status(404).json({ message: 'Client profile not found' });
-            }
+        const serviceReq = await ServiceRequest.findById(requestId);
+        if (!serviceReq) {
+            return res.status(404).json({ message: 'Service request not found' });
+        }
 
-            const payment = await Payment.create({
+        const client = await Client.findOne({ userId: req.user._id });
+        if (!client) {
+            return res.status(404).json({ message: 'Client profile not found' });
+        }
+
+        const payment = await Payment.findOneAndUpdate(
+            { requestId },
+            {
                 requestId,
                 clientId: client._id,
-                adminId: serviceReq.adminId || null,
+                adminId: serviceReq.claimedBy || null,
                 amount: serviceReq.estimatedPrice,
                 method: 'razorpay',
                 transactionId: razorpay_payment_id,
                 paymentStatus: 'completed'
-            });
-            serviceReq.paymentStatus = 'paid';
-            await serviceReq.save();
+            },
+            { upsert: true, new: true, runValidators: true }
+        );
 
-            console.log('Payment Verified and Saved successfully');
-            res.status(200).json({ message: 'Payment verified', payment });
-        } else {
-            console.warn('Signature Mismatch!');
-            res.status(400).json({ message: 'Invalid signature' });
-        }
+        serviceReq.paymentStatus = 'paid';
+        await serviceReq.save();
+
+        res.status(200).json({ message: 'Payment verified successfully', payment });
     } catch (error) {
-        console.error('FATAL VERIFICATION ERROR:', error);
+        console.error('Razorpay Verification Error:', error);
         res.status(500).json({ message: 'Payment verification failed', error: error.message });
     }
 };
-
-
 
 const getPaymentDetails = async (req, res) => {
     try {
@@ -109,5 +130,6 @@ const getPaymentDetails = async (req, res) => {
 module.exports = {
     createOrder,
     verifyPayment,
-    getPaymentDetails,
+    getPaymentDetails
 };
+
