@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
+const { sensitiveActionLimiter } = require('../middleware/rateLimiter');
 const {
     createServiceRequest,
     getServiceRequests,
@@ -12,7 +13,7 @@ const {
 
 router.route('/')
     .get(protect, getServiceRequests)
-    .post(protect, createServiceRequest);
+    .post(protect, sensitiveActionLimiter, createServiceRequest);
 
 router.route('/:id')
     .get(protect, getServiceRequestById)
@@ -22,4 +23,3 @@ router.route('/:id')
 router.post('/:id/claim', protect, claimServiceRequest);
 
 module.exports = router;
-

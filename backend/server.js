@@ -9,7 +9,9 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1);
 
+const { globalLimiter } = require('./middleware/rateLimiter');
 
 app.use(cors({
     origin: true,
@@ -21,6 +23,7 @@ app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api', globalLimiter);
 
 
 app.use('/api/auth', require('./routes/authRoutes'));
