@@ -92,8 +92,8 @@ const Login = () => {
                     {/* Right Form Card */}
                     <div className="auth-form-side">
                         <div className="auth-form-header">
-                            <h2>Sign In</h2>
-                            <p>Enter your credentials to access your account</p>
+                            <h2>{activeTab === 'admin' ? 'Admin Portal Sign In' : 'Sign In'}</h2>
+                            <p>{activeTab === 'admin' ? 'Enter administrative credentials to access operational controls' : 'Enter your credentials to access your account'}</p>
                         </div>
 
                         {/* Quick Role Tab Switcher */}
