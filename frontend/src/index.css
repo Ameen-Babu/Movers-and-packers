@@ -4043,4 +4043,167 @@ button {
   gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
-}
+}
+
+.otp-container-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.otp-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.otp-shield-badge {
+  background: transparent;
+  border: none;
+  color: var(--accent-amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.otp-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.otp-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 380px;
+}
+
+.otp-email-highlight {
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.btn-edit-email {
+  background: none;
+  border: none;
+  color: var(--accent-amber);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.btn-edit-email:hover {
+  opacity: 0.8;
+}
+
+.otp-boxes-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.otp-digit-input {
+  width: 52px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  font-family: monospace;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.otp-digit-input:focus {
+  border-color: var(--accent-amber);
+  background: var(--bg-surface);
+}
+
+.otp-digit-input.filled {
+  border-color: var(--accent-amber);
+  background: rgba(0, 177, 79, 0.05);
+}
+
+.otp-digit-input.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--status-error);
+}
+
+.otp-shake {
+  animation: otpShakeAnim 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes otpShakeAnim {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+.otp-meta-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.otp-attempts-badge strong {
+  color: var(--text-main);
+}
+
+.otp-resend-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.resend-countdown-text strong {
+  color: var(--text-main);
+}
+
+.btn-resend-link {
+  background: none;
+  border: none;
+  color: var(--accent-amber);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.btn-resend-link:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 480px) {
+  .otp-digit-input {
+    width: 42px;
+    height: 52px;
+    font-size: 22px;
+  }
+  .otp-boxes-wrapper {
+    gap: 6px;
+  }
+}
+

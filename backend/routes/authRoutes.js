@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, getMe, updateProfile } = require('../controllers/authController');
+const { signupInitiate, verifyOTP, resendOTP, registerUser, loginUser, getMe, updateProfile } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
-const { authLimiter } = require('../middleware/rateLimiter');
+const { authLimiter, sensitiveActionLimiter, emailInitiateLimiter } = require('../middleware/rateLimiter');
 
+router.post('/signup-initiate', authLimiter, emailInitiateLimiter, signupInitiate);
+router.post('/verify-otp', authLimiter, verifyOTP);
+router.post('/resend-otp', sensitiveActionLimiter, resendOTP);
 router.post('/register', authLimiter, registerUser);
 router.post('/login', authLimiter, loginUser);
 router.put('/update-profile', protect, updateProfile);
@@ -17,3 +20,4 @@ router.get('/', (req, res) => {
 });
 
 module.exports = router;
+

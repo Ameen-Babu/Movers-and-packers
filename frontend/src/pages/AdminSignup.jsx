@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Phone, ShieldCheck, Truck, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import OtpVerification from '../components/OtpVerification';
 
 const AdminSignup = () => {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ const AdminSignup = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [step, setStep] = useState('FORM');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,7 +37,7 @@ const AdminSignup = () => {
 
         try {
             const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiBaseUrl}/auth/register`, {
+            const response = await fetch(`${apiBaseUrl}/auth/signup-initiate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -44,18 +46,23 @@ const AdminSignup = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setSuccess('Admin registration submitted! Account pending SuperAdmin approval.');
-                setTimeout(() => {
-                    navigate('/login');
-                }, 3000);
+                setStep('OTP');
             } else {
-                setError(data.message || 'Registration failed');
+                setError(data.message || 'Registration initiation failed');
             }
         } catch (err) {
             setError('Server connection error. Is the backend running on port 5000?');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleVerified = (data) => {
+        setSuccess('Email verified! Admin registration submitted and pending SuperAdmin approval.');
+        setStep('SUCCESS');
+        setTimeout(() => {
+            navigate('/login');
+        }, 3500);
     };
 
     return (
@@ -66,17 +73,17 @@ const AdminSignup = () => {
                     <div className="auth-brand-side">
                         <div className="auth-brand-header">
                             <span className="auth-brand-name">HYDROX <span className="accent">MOVERS</span></span>
-                            <p className="auth-brand-tagline">STAFF & ADMIN DISPATCH PORTAL</p>
+                            <p className="auth-brand-tagline">STAFF &amp; ADMIN DISPATCH PORTAL</p>
                         </div>
 
                         <div className="auth-brand-body">
-                            <h2>Admin Command & Operations Control</h2>
+                            <h2>Admin Command &amp; Operations Control</h2>
                             <p>Register as an internal staff administrator to claim customer move requests, manage fleet assignments, and issue binding survey invoices.</p>
                             
                             <div className="auth-feature-list">
                                 <div className="auth-feat-item">
                                     <ShieldCheck size={18} className="feat-icon" />
-                                    <span>SuperAdmin Approval & Audit Controls</span>
+                                    <span>SuperAdmin Approval &amp; Audit Controls</span>
                                 </div>
                                 <div className="auth-feat-item">
                                     <Truck size={18} className="feat-icon" />
@@ -92,124 +99,147 @@ const AdminSignup = () => {
 
                     {/* Right Form Side */}
                     <div className="auth-form-side">
-                        <div className="auth-form-header">
-                            <h2>Admin Registration</h2>
-                            <p>Register for internal administrative dispatch credentials</p>
-                        </div>
-
-                        {error && (
-                            <div className="auth-error-banner">
-                                <AlertCircle size={16} />
-                                <span>{error}</span>
+                        {step === 'OTP' ? (
+                            <OtpVerification
+                                email={formData.email}
+                                name={formData.name}
+                                role="admin"
+                                onVerified={handleVerified}
+                                onCancel={() => setStep('FORM')}
+                            />
+                        ) : step === 'SUCCESS' ? (
+                            <div className="otp-container-panel" style={{ textAlign: 'center', padding: '20px 0' }}>
+                                <div style={{ height: '20px', margin: '0 auto 16px auto' }}></div>
+                                <h2>Application Submitted</h2>
+                                <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, margin: '12px 0 24px 0' }}>
+                                    Your email address has been verified. Your admin account application is pending review and approval by a SuperAdmin.
+                                </p>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                                    Redirecting to login in 3 seconds...
+                                </p>
                             </div>
-                        )}
-
-                        {success && (
-                            <div className="auth-error-banner" style={{ background: '#ECFDF5', borderColor: '#A7F3D0', color: '#065F46' }}>
-                                <CheckCircle size={16} />
-                                <span>{success}</span>
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit} className="auth-form-body">
-                            <div className="form-grid-2">
-                                <div className="form-group-field full-width">
-                                    <label>Admin Officer Name</label>
-                                    <div className="input-icon-wrapper">
-                                        <User size={18} className="input-left-icon" />
-                                        <input 
-                                            name="name" 
-                                            type="text" 
-                                            placeholder="Vikram Nair" 
-                                            value={formData.name}
-                                            required 
-                                            onChange={handleChange} 
-                                        />
-                                    </div>
+                        ) : (
+                            <>
+                                <div className="auth-form-header">
+                                    <h2>Admin Registration</h2>
+                                    <p>Register for internal administrative dispatch credentials</p>
                                 </div>
 
-                                <div className="form-group-field full-width">
-                                    <label>Corporate Email</label>
-                                    <div className="input-icon-wrapper">
-                                        <Mail size={18} className="input-left-icon" />
-                                        <input 
-                                            name="email" 
-                                            type="email" 
-                                            placeholder="vikram.admin@hydrox.in" 
-                                            value={formData.email}
-                                            required 
-                                            onChange={handleChange} 
-                                        />
+                                {error && (
+                                    <div className="auth-error-banner">
+                                        <AlertCircle size={16} />
+                                        <span>{error}</span>
                                     </div>
-                                </div>
-
-                                <div className="form-group-field full-width">
-                                    <label>Direct Mobile Phone</label>
-                                    <div className="input-icon-wrapper">
-                                        <Phone size={18} className="input-left-icon" />
-                                        <input 
-                                            name="phone" 
-                                            type="text" 
-                                            placeholder="+91 98450 12345" 
-                                            value={formData.phone}
-                                            required 
-                                            onChange={handleChange} 
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-group-field">
-                                    <label>Password</label>
-                                    <div className="input-icon-wrapper">
-                                        <Lock size={18} className="input-left-icon" />
-                                        <input 
-                                            name="password" 
-                                            type={showPassword ? 'text' : 'password'} 
-                                            placeholder="••••••••" 
-                                            value={formData.password}
-                                            required 
-                                            onChange={handleChange} 
-                                        />
-                                        <button
-                                            type="button"
-                                            className="btn-toggle-password"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="form-group-field">
-                                    <label>Confirm Password</label>
-                                    <div className="input-icon-wrapper">
-                                        <Lock size={18} className="input-left-icon" />
-                                        <input 
-                                            name="confirmPassword" 
-                                            type={showPassword ? 'text' : 'password'} 
-                                            placeholder="••••••••" 
-                                            value={formData.confirmPassword}
-                                            required 
-                                            onChange={handleChange} 
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" className="btn-auth-submit" disabled={loading}>
-                                {loading ? 'Submitting Application...' : (
-                                    <>
-                                        Register Admin Account <ArrowRight size={18} />
-                                    </>
                                 )}
-                            </button>
-                        </form>
 
-                        <div className="auth-form-footer">
-                            <p>
-                                Already registered? <Link to="/login">Sign In to Portal</Link>
-                            </p>
-                        </div>
+                                {success && (
+                                    <div className="auth-error-banner" style={{ background: '#ECFDF5', borderColor: '#A7F3D0', color: '#065F46' }}>
+                                        <CheckCircle size={16} />
+                                        <span>{success}</span>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSubmit} className="auth-form-body">
+                                    <div className="form-grid-2">
+                                        <div className="form-group-field full-width">
+                                            <label>Admin Officer Name</label>
+                                            <div className="input-icon-wrapper">
+                                                <User size={18} className="input-left-icon" />
+                                                <input 
+                                                    name="name" 
+                                                    type="text" 
+                                                    placeholder="Vikram Nair" 
+                                                    value={formData.name}
+                                                    required 
+                                                    onChange={handleChange} 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group-field full-width">
+                                            <label>Corporate Email</label>
+                                            <div className="input-icon-wrapper">
+                                                <Mail size={18} className="input-left-icon" />
+                                                <input 
+                                                    name="email" 
+                                                    type="email" 
+                                                    placeholder="vikram.admin@hydrox.in" 
+                                                    value={formData.email}
+                                                    required 
+                                                    onChange={handleChange} 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group-field full-width">
+                                            <label>Direct Mobile Phone</label>
+                                            <div className="input-icon-wrapper">
+                                                <Phone size={18} className="input-left-icon" />
+                                                <input 
+                                                    name="phone" 
+                                                    type="text" 
+                                                    placeholder="+91 98450 12345" 
+                                                    value={formData.phone}
+                                                    required 
+                                                    onChange={handleChange} 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group-field">
+                                            <label>Password</label>
+                                            <div className="input-icon-wrapper">
+                                                <Lock size={18} className="input-left-icon" />
+                                                <input 
+                                                    name="password" 
+                                                    type={showPassword ? 'text' : 'password'} 
+                                                    placeholder="••••••••" 
+                                                    value={formData.password}
+                                                    required 
+                                                    onChange={handleChange} 
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="btn-toggle-password"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                >
+                                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group-field">
+                                            <label>Confirm Password</label>
+                                            <div className="input-icon-wrapper">
+                                                <Lock size={18} className="input-left-icon" />
+                                                <input 
+                                                    name="confirmPassword" 
+                                                    type={showPassword ? 'text' : 'password'} 
+                                                    placeholder="••••••••" 
+                                                    value={formData.confirmPassword}
+                                                    required 
+                                                    onChange={handleChange} 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" className="btn-auth-submit" disabled={loading}>
+                                        {loading ? 'Processing...' : (
+                                            <>
+                                                Continue <ArrowRight size={18} />
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+
+                                <div className="auth-form-footer">
+                                    <p>
+                                        Already registered? <Link to="/login">Sign In to Portal</Link>
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
