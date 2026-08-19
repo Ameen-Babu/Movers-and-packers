@@ -30,6 +30,28 @@ const Profile = () => {
                 city: storedUser.city || '',
                 pincode: storedUser.pincode || ''
             });
+
+            const fetchProfile = async () => {
+                try {
+                    const res = await fetch(`${API}/auth/me`, {
+                        headers: { Authorization: `Bearer ${storedUser.token}` }
+                    });
+                    if (res.ok) {
+                        const freshData = await res.json();
+                        const updated = { ...storedUser, ...freshData };
+                        localStorage.setItem('user', JSON.stringify(updated));
+                        setUser(updated);
+                        setAddressForm({
+                            address: updated.address || '',
+                            city: updated.city || '',
+                            pincode: updated.pincode || ''
+                        });
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch latest user profile:', err);
+                }
+            };
+            fetchProfile();
         } else {
             window.location.href = '/login';
         }
@@ -157,7 +179,7 @@ const Profile = () => {
 
                         <div className="profile-quick-actions">
                             <Link to="/orders" className="btn-profile-action">
-                                <Truck size={16} /> My Relocations & Orders <ChevronRight size={14} />
+                                 My Relocations & Orders <ChevronRight size={14} />
                             </Link>
                         </div>
                     </div>

@@ -220,10 +220,22 @@ const verifyOTP = async (req, res) => {
                 }
             });
         } else {
+            let profileData = {};
+            const clientDoc = await Client.findOne({ userId: user._id });
+            if (clientDoc) {
+                profileData.address = clientDoc.address || '';
+                profileData.city = clientDoc.city || '';
+                profileData.pincode = clientDoc.pincode || '';
+            }
+            if (user.role === 'provider') {
+                const providerDoc = await Provider.findOne({ userId: user._id });
+                if (providerDoc) {
+                    profileData.companyName = providerDoc.companyName || '';
+                    profileData.licenseNo = providerDoc.licenseNo || '';
+                }
+            }
             const token = generateToken(user.id);
-            return res.status(201).json({
-                success: true,
-                message: 'Email verified and account created successfully',
+            const userPayload = {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
@@ -231,15 +243,13 @@ const verifyOTP = async (req, res) => {
                 phone: user.phone,
                 isEmailVerified: true,
                 token: token,
-                user: {
-                    _id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    phone: user.phone,
-                    isEmailVerified: true,
-                    token: token
-                }
+                ...profileData
+            };
+            return res.status(201).json({
+                success: true,
+                message: 'Email verified and account created successfully',
+                ...userPayload,
+                user: userPayload
             });
         }
     } catch (error) {
@@ -367,7 +377,7 @@ const registerUser = async (req, res) => {
             });
         } else {
             const token = generateToken(user.id);
-            return res.status(201).json({
+            const userPayload = {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
@@ -375,15 +385,11 @@ const registerUser = async (req, res) => {
                 phone: user.phone,
                 isEmailVerified: true,
                 token: token,
-                user: {
-                    _id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    phone: user.phone,
-                    isEmailVerified: true,
-                    token: token,
-                }
+                ...profileData
+            };
+            return res.status(201).json({
+                ...userPayload,
+                user: userPayload
             });
         }
     } catch (error) {
@@ -408,15 +414,22 @@ const loginUser = async (req, res) => {
             }
 
             let profileData = {};
-            if (user.role === 'client') {
-                profileData = await Client.findOne({ userId: user._id });
-            } else if (user.role === 'provider') {
-                profileData = await Provider.findOne({ userId: user._id });
-            } else if (['admin', 'superadmin'].includes(user.role)) {
-                profileData = await Admin.findOne({ userId: user._id });
+            const clientDoc = await Client.findOne({ userId: user._id });
+            if (clientDoc) {
+                profileData.address = clientDoc.address || '';
+                profileData.city = clientDoc.city || '';
+                profileData.pincode = clientDoc.pincode || '';
+            }
+            if (user.role === 'provider') {
+                const providerDoc = await Provider.findOne({ userId: user._id });
+                if (providerDoc) {
+                    profileData.companyName = providerDoc.companyName || '';
+                    profileData.licenseNo = providerDoc.licenseNo || '';
+                }
             }
 
-            return res.json({
+            const token = generateToken(user.id);
+            const userPayload = {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
@@ -424,18 +437,13 @@ const loginUser = async (req, res) => {
                 phone: user.phone,
                 isApproved: user.isApproved,
                 isEmailVerified: user.isEmailVerified !== undefined ? user.isEmailVerified : true,
-                ...(profileData ? profileData.toObject() : {}),
-                token: generateToken(user.id),
-                user: {
-                    _id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    phone: user.phone,
-                    isApproved: user.isApproved,
-                    isEmailVerified: user.isEmailVerified !== undefined ? user.isEmailVerified : true,
-                    token: generateToken(user.id),
-                }
+                ...profileData,
+                token: token
+            };
+
+            return res.json({
+                ...userPayload,
+                user: userPayload
             });
         } else {
             return res.status(400).json({ message: 'Invalid email or password. Please check your credentials or register.' });
@@ -449,15 +457,19 @@ const loginUser = async (req, res) => {
 const getMe = async (req, res) => {
     try {
         let profileData = {};
-        if (req.user.role === 'client') {
-            profileData = await Client.findOne({ userId: req.user._id });
-        } else if (req.user.role === 'provider') {
-            profileData = await Provider.findOne({ userId: req.user._id });
-        } else if (['admin', 'superadmin'].includes(req.user.role)) {
-            profileData = await Admin.findOne({ userId: req.user._id });
+        const clientDoc = await Client.findOne({ userId: req.user._id });
+        if (clientDoc) {
+            profileData.address = clientDoc.address || '';
+            profileData.city = clientDoc.city || '';
+            profileData.pincode = clientDoc.pincode || '';
         }
-
-        const extraData = profileData && typeof profileData.toObject === 'function' ? profileData.toObject() : (profileData || {});
+        if (req.user.role === 'provider') {
+            const providerDoc = await Provider.findOne({ userId: req.user._id });
+            if (providerDoc) {
+                profileData.companyName = providerDoc.companyName || '';
+                profileData.licenseNo = providerDoc.licenseNo || '';
+            }
+        }
 
         return res.status(200).json({
             _id: req.user.id,
@@ -467,7 +479,7 @@ const getMe = async (req, res) => {
             phone: req.user.phone,
             isApproved: req.user.isApproved,
             isEmailVerified: req.user.isEmailVerified !== undefined ? req.user.isEmailVerified : true,
-            ...extraData,
+            ...profileData,
         });
     } catch (error) {
         console.error('getMe error:', error);

@@ -68,10 +68,9 @@ const verifyPayment = async (req, res) => {
             .update(body)
             .digest('hex');
 
-        const isSignatureValid = crypto.timingSafeEqual(
-            Buffer.from(expectedSignature, 'utf-8'),
-            Buffer.from(razorpay_signature, 'utf-8')
-        );
+        const bufA = Buffer.from(expectedSignature, 'utf-8');
+        const bufB = Buffer.from(razorpay_signature, 'utf-8');
+        const isSignatureValid = bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
 
         if (!isSignatureValid) {
             return res.status(400).json({ message: 'Invalid payment signature' });

@@ -3567,8 +3567,15 @@ button {
 
   .search-bar-action {
     flex-direction: column !important;
+    align-items: center !important;
     width: 100% !important;
     gap: 10px !important;
+  }
+
+  .search-bar-price {
+    text-align: center !important;
+    align-items: center !important;
+    width: 100% !important;
   }
 
   .btn-search-submit {
@@ -4206,4 +4213,4 @@ button {
     gap: 6px;
   }
 }
-
+
